@@ -219,10 +219,6 @@ function AuthPage() {
             <Button type="submit" className="w-full" isLoading={form.formState.isSubmitting}>
               Sign in
             </Button>
-            <p className="text-center text-xs text-muted-foreground">
-              Demo credentials: any email · password{" "}
-              <span className="font-mono font-semibold">demo1234</span>
-            </p>
           </form>
         </div>
       </div>

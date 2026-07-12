@@ -101,15 +101,17 @@ export class TripsService {
       throw new ValidationError("Trip is already completed or cancelled");
     }
 
-    if (trip.status === TripStatus.DISPATCHED) {
-      // Free up resources
-      await prisma.vehicle.update({ where: { id: trip.vehicleId }, data: { status: VehicleStatus.AVAILABLE } });
-      await prisma.driver.update({ where: { id: trip.driverId }, data: { status: DriverStatus.AVAILABLE } });
-    }
+    return prisma.$transaction(async (tx) => {
+      if (trip.status === TripStatus.DISPATCHED) {
+        // Free up resources
+        await tx.vehicle.update({ where: { id: trip.vehicleId }, data: { status: VehicleStatus.AVAILABLE } });
+        await tx.driver.update({ where: { id: trip.driverId }, data: { status: DriverStatus.AVAILABLE } });
+      }
 
-    return prisma.trip.update({
-      where: { id },
-      data: { status: TripStatus.CANCELLED },
+      return tx.trip.update({
+        where: { id },
+        data: { status: TripStatus.CANCELLED },
+      });
     });
   }
 }

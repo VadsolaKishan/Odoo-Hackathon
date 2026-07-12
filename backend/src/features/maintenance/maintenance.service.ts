@@ -1,7 +1,7 @@
 import { prisma } from "../../db/client";
 import { CreateMaintenanceInput, UpdateMaintenanceInput } from "./maintenance.schema";
 import { NotFoundError } from "../../shared/errors";
-import { MaintenanceStatus } from "@prisma/client";
+import { MaintenanceStatus, VehicleStatus } from "@prisma/client";
 
 const mapStatus = (status: string) => status.toUpperCase().replace(" ", "_") as MaintenanceStatus;
 
@@ -21,26 +21,62 @@ export class MaintenanceService {
     const vehicle = await prisma.vehicle.findUnique({ where: { id: input.vehicleId } });
     if (!vehicle) throw new NotFoundError("Vehicle not found");
 
-    return prisma.maintenanceRecord.create({
-      data: {
-        vehicleId: input.vehicleId,
-        serviceType: input.serviceType,
-        cost: input.cost,
-        date: new Date(input.date),
-        status: mapStatus(input.status),
-      },
+    const mappedStatus = mapStatus(input.status);
+
+    return prisma.$transaction(async (tx) => {
+      const record = await tx.maintenanceRecord.create({
+        data: {
+          vehicleId: input.vehicleId,
+          serviceType: input.serviceType,
+          cost: input.cost,
+          date: new Date(input.date),
+          status: mappedStatus,
+        },
+      });
+
+      if (mappedStatus === MaintenanceStatus.IN_PROGRESS && vehicle.status !== VehicleStatus.RETIRED) {
+        await tx.vehicle.update({
+          where: { id: vehicle.id },
+          data: { status: VehicleStatus.IN_SHOP },
+        });
+      }
+
+      return record;
     });
   }
 
   async updateStatus(id: string, input: UpdateMaintenanceInput) {
-    const record = await prisma.maintenanceRecord.findUnique({ where: { id } });
+    const record = await prisma.maintenanceRecord.findUnique({ 
+      where: { id },
+      include: { vehicle: true }
+    });
     if (!record) throw new NotFoundError("Maintenance record not found");
 
-    return prisma.maintenanceRecord.update({
-      where: { id },
-      data: {
-        status: mapStatus(input.status),
-      },
+    const newStatus = mapStatus(input.status);
+
+    return prisma.$transaction(async (tx) => {
+      const updatedRecord = await tx.maintenanceRecord.update({
+        where: { id },
+        data: {
+          status: newStatus,
+        },
+      });
+
+      if (record.vehicle.status !== VehicleStatus.RETIRED) {
+        if (newStatus === MaintenanceStatus.IN_PROGRESS) {
+          await tx.vehicle.update({
+            where: { id: record.vehicleId },
+            data: { status: VehicleStatus.IN_SHOP },
+          });
+        } else if (newStatus === MaintenanceStatus.COMPLETED) {
+          await tx.vehicle.update({
+            where: { id: record.vehicleId },
+            data: { status: VehicleStatus.AVAILABLE },
+          });
+        }
+      }
+
+      return updatedRecord;
     });
   }
 }

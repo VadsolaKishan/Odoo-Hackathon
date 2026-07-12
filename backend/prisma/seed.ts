@@ -20,6 +20,7 @@ async function main() {
     { email: "safetyofficer@gmail.com", role: UserRole.SAFETY_OFFICER, name: "Safety Officer" },
     { email: "financialanalyst@gmail.com", role: UserRole.FINANCIAL_ANALYST, name: "Financial Analyst" },
     { email: "manager@transitops.io", role: UserRole.FLEET_MANAGER, name: "Darshan Manager" },
+    { email: "test@example.com", role: UserRole.FLEET_MANAGER, name: "Test Manager" },
   ];
 
   for (const u of users) {

@@ -148,7 +148,7 @@ function ExpensesPage() {
             Track fuel consumption and operational spend
           </p>
         </div>
-        <PermissionGuard resource="fuel" required="manage">
+        <PermissionGuard resource="fuel" required="edit">
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => setOpenFuel(true)}>
               <Plus className="mr-1.5 h-4 w-4" /> Fuel Log
@@ -209,16 +209,6 @@ function ExpensesPage() {
             <TabsTrigger value="fuel">Fuel Logs ({fuelLogs.length})</TabsTrigger>
             <TabsTrigger value="other">Other Expenses ({expenses.length})</TabsTrigger>
           </TabsList>
-          <PermissionGuard resource="fuel" required="edit">
-            <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={() => setOpenFuel(true)}>
-                <Plus className="mr-1.5 h-4 w-4" /> Fuel Log
-              </Button>
-              <Button size="sm" onClick={() => setOpenExp(true)}>
-                <Plus className="mr-1.5 h-4 w-4" /> Expense
-              </Button>
-            </div>
-          </PermissionGuard>
         </div>
 
         {/* Fuel Logs Tab */}

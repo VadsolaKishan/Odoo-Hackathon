@@ -2,60 +2,54 @@ import type { UserRole } from "@/types";
 
 // ── Permission levels ──────────────────────────────────────
 export type Permission =
-  | "manage"          // Full CRUD
-  | "edit"            // Create + Update (no delete)
+  | "manage" // Full CRUD
+  | "edit" // Create + Update (no delete)
   | "edit_assignment" // Update driver assignment only
-  | "view"            // Read + filter (no mutations)
-  | "read"            // Strict read-only, no filters that mutate
-  | null;             // No access — page is blocked
+  | "view" // Read + filter (no mutations)
+  | "read" // Strict read-only, no filters that mutate
+  | null; // No access — page is blocked
 
 // ── Resource keys ─────────────────────────────────────────
 export type Resource =
-  | "fleet"
-  | "drivers"
-  | "trips"
-  | "maintenance"
-  | "fuel"
-  | "analytics"
-  | "settings";
+  "fleet" | "drivers" | "trips" | "maintenance" | "fuel" | "analytics" | "settings";
 
 // ── Central permission matrix ──────────────────────────────
 export const PERMISSIONS: Record<UserRole, Record<Resource, Permission>> = {
   "Fleet Manager": {
-    fleet:       "manage",
-    drivers:     "manage",
-    trips:       "view",
+    fleet: "manage",
+    drivers: "manage",
+    trips: "view",
     maintenance: "manage",
-    fuel:        "edit",
-    analytics:   "view",
-    settings:    "manage",
+    fuel: "edit",
+    analytics: "view",
+    settings: "manage",
   },
-  "Dispatcher": {
-    fleet:       "view",
-    drivers:     "edit_assignment",
-    trips:       "manage",
+  Dispatcher: {
+    fleet: "view",
+    drivers: "edit_assignment",
+    trips: "manage",
     maintenance: "view",
-    fuel:        "view",
-    analytics:   "view",
-    settings:    null,
+    fuel: "view",
+    analytics: "view",
+    settings: null,
   },
   "Safety Officer": {
-    fleet:       "view",
-    drivers:     "manage",
-    trips:       "view",
+    fleet: "view",
+    drivers: "manage",
+    trips: "view",
     maintenance: "view",
-    fuel:        "read",
-    analytics:   "view",
-    settings:    null,
+    fuel: "read",
+    analytics: "view",
+    settings: null,
   },
   "Financial Analyst": {
-    fleet:       "read",
-    drivers:     "read",
-    trips:       "read",
+    fleet: "read",
+    drivers: "read",
+    trips: "read",
     maintenance: "read",
-    fuel:        "manage",
-    analytics:   "manage",
-    settings:    null,
+    fuel: "manage",
+    analytics: "manage",
+    settings: null,
   },
 };
 
@@ -70,7 +64,7 @@ const LEVEL_ORDER: Permission[] = [null, "read", "view", "edit", "edit_assignmen
 export function hasPermission(
   role: UserRole | undefined,
   resource: Resource,
-  required: Permission
+  required: Permission,
 ): boolean {
   if (!role) return false;
   const actual = PERMISSIONS[role]?.[resource] ?? null;

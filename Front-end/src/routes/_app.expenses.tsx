@@ -9,9 +9,28 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { KpiCard } from "@/components/ui/kpi-card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PermissionGuard } from "@/components/ui/permission-guard";
 import { useStore } from "@/context/StoreContext";
@@ -23,52 +42,93 @@ export const Route = createFileRoute("/_app/expenses")({
 });
 
 function ExpensesPage() {
-  const { vehicles, trips, fuelLogs, expenses, maintenance, addFuelLog, addExpense, currencySymbol } = useStore();
+  const {
+    vehicles,
+    trips,
+    fuelLogs,
+    expenses,
+    maintenance,
+    addFuelLog,
+    addExpense,
+    currencySymbol,
+  } = useStore();
   const { can } = usePermission();
 
   const [openFuel, setOpenFuel] = useState(false);
-  const [openExp, setOpenExp]   = useState(false);
+  const [openExp, setOpenExp] = useState(false);
 
   const fuelForm = useForm({
     defaultValues: {
-      vehicleId: "", date: new Date().toISOString().slice(0, 10),
-      liters: 50, pricePerLiter: 100,
+      vehicleId: "",
+      date: new Date().toISOString().slice(0, 10),
+      liters: 50,
+      pricePerLiter: 100,
     },
   });
   const expForm = useForm({
     defaultValues: {
-      tripId: "", vehicleId: "", toll: 0, repair: 0, misc: 0,
+      tripId: "",
+      vehicleId: "",
+      toll: 0,
+      repair: 0,
+      misc: 0,
       date: new Date().toISOString().slice(0, 10),
     },
   });
 
   const totals = useMemo(() => {
-    const fuelCost  = fuelLogs.reduce((s, f) => s + f.liters * f.pricePerLiter, 0);
+    const fuelCost = fuelLogs.reduce((s, f) => s + f.liters * f.pricePerLiter, 0);
     const maintCost = maintenance.reduce((s, m) => s + m.cost, 0);
     const otherCost = expenses.reduce((s, e) => s + e.toll + e.repair + e.misc, 0);
     return { fuelCost, maintCost, otherCost, total: fuelCost + maintCost + otherCost };
   }, [fuelLogs, maintenance, expenses]);
 
-  const vehicleById = useMemo(
-    () => Object.fromEntries(vehicles.map((v) => [v.id, v])),
-    [vehicles]
-  );
+  const vehicleById = useMemo(() => Object.fromEntries(vehicles.map((v) => [v.id, v])), [vehicles]);
 
-  const submitFuel = async (v: { vehicleId: string; date: string; liters: number; pricePerLiter: number }) => {
-    if (!v.vehicleId) { toast.error("Select a vehicle"); return; }
-    const res = await addFuelLog({ ...v, liters: Number(v.liters), pricePerLiter: Number(v.pricePerLiter) });
+  const submitFuel = async (v: {
+    vehicleId: string;
+    date: string;
+    liters: number;
+    pricePerLiter: number;
+  }) => {
+    if (!v.vehicleId) {
+      toast.error("Select a vehicle");
+      return;
+    }
+    const res = await addFuelLog({
+      ...v,
+      liters: Number(v.liters),
+      pricePerLiter: Number(v.pricePerLiter),
+    });
     if (!res.ok) {
       toast.error(res.error || "Failed to add fuel log");
       return;
     }
-    toast.success(`Fuel log added — ${currencySymbol}${(Number(v.liters) * Number(v.pricePerLiter)).toLocaleString("en-IN")}`);
+    toast.success(
+      `Fuel log added — ${currencySymbol}${(Number(v.liters) * Number(v.pricePerLiter)).toLocaleString("en-IN")}`,
+    );
     setOpenFuel(false);
     fuelForm.reset();
   };
 
-  const submitExp = async (v: { tripId: string; vehicleId: string; toll: number; repair: number; misc: number; date: string }) => {
-    if (!v.vehicleId) { toast.error("Select a vehicle"); return; }
-    const res = await addExpense({ ...v, toll: Number(v.toll), repair: Number(v.repair), misc: Number(v.misc) });
+  const submitExp = async (v: {
+    tripId: string;
+    vehicleId: string;
+    toll: number;
+    repair: number;
+    misc: number;
+    date: string;
+  }) => {
+    if (!v.vehicleId) {
+      toast.error("Select a vehicle");
+      return;
+    }
+    const res = await addExpense({
+      ...v,
+      toll: Number(v.toll),
+      repair: Number(v.repair),
+      misc: Number(v.misc),
+    });
     if (!res.ok) {
       toast.error(res.error || "Failed to add expense entry");
       return;
@@ -135,7 +195,8 @@ function ExpensesPage() {
             <p className="text-xs font-semibold uppercase tracking-widest">Total Op. Cost</p>
           </div>
           <p className="mt-2 text-3xl font-bold tabular-nums">
-            {currencySymbol}{Math.round(totals.total).toLocaleString("en-IN")}
+            {currencySymbol}
+            {Math.round(totals.total).toLocaleString("en-IN")}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">fuel + maintenance + other</p>
         </Card>
@@ -182,16 +243,26 @@ function ExpensesPage() {
                       {fuelLogs.map((f) => (
                         <TableRow key={f.id} className="hover:bg-muted/30">
                           <TableCell>
-                            <p className="font-mono text-sm font-semibold">{vehicleById[f.vehicleId]?.registration ?? "—"}</p>
-                            <p className="text-xs text-muted-foreground">{vehicleById[f.vehicleId]?.type}</p>
+                            <p className="font-mono text-sm font-semibold">
+                              {vehicleById[f.vehicleId]?.registration ?? "—"}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {vehicleById[f.vehicleId]?.type}
+                            </p>
                           </TableCell>
                           <TableCell className="text-muted-foreground text-sm">
                             {f.date ? new Date(f.date).toLocaleDateString("en-IN") : "—"}
                           </TableCell>
-                          <TableCell className="text-right tabular-nums font-medium">{f.liters.toLocaleString("en-IN")}</TableCell>
-                          <TableCell className="text-right tabular-nums text-muted-foreground">{currencySymbol}{f.pricePerLiter}</TableCell>
+                          <TableCell className="text-right tabular-nums font-medium">
+                            {f.liters.toLocaleString("en-IN")}
+                          </TableCell>
+                          <TableCell className="text-right tabular-nums text-muted-foreground">
+                            {currencySymbol}
+                            {f.pricePerLiter}
+                          </TableCell>
                           <TableCell className="text-right tabular-nums font-semibold text-primary">
-                            {currencySymbol}{(f.liters * f.pricePerLiter).toLocaleString("en-IN")}
+                            {currencySymbol}
+                            {(f.liters * f.pricePerLiter).toLocaleString("en-IN")}
                           </TableCell>
                         </TableRow>
                       ))}
@@ -226,16 +297,27 @@ function ExpensesPage() {
                     <TableBody>
                       {expenses.map((e) => (
                         <TableRow key={e.id} className="hover:bg-muted/30">
-                          <TableCell className="font-mono text-sm font-semibold">{vehicleById[e.vehicleId]?.registration ?? "—"}</TableCell>
-                          <TableCell className="text-muted-foreground text-xs font-mono">{e.tripId ?? "—"}</TableCell>
+                          <TableCell className="font-mono text-sm font-semibold">
+                            {vehicleById[e.vehicleId]?.registration ?? "—"}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground text-xs font-mono">
+                            {e.tripId ?? "—"}
+                          </TableCell>
                           <TableCell className="text-muted-foreground text-sm">
                             {e.date ? new Date(e.date).toLocaleDateString("en-IN") : "—"}
                           </TableCell>
-                          <TableCell className="text-right tabular-nums">{e.toll.toLocaleString("en-IN")}</TableCell>
-                          <TableCell className="text-right tabular-nums">{e.repair.toLocaleString("en-IN")}</TableCell>
-                          <TableCell className="text-right tabular-nums">{e.misc.toLocaleString("en-IN")}</TableCell>
+                          <TableCell className="text-right tabular-nums">
+                            {e.toll.toLocaleString("en-IN")}
+                          </TableCell>
+                          <TableCell className="text-right tabular-nums">
+                            {e.repair.toLocaleString("en-IN")}
+                          </TableCell>
+                          <TableCell className="text-right tabular-nums">
+                            {e.misc.toLocaleString("en-IN")}
+                          </TableCell>
                           <TableCell className="text-right tabular-nums font-semibold text-primary">
-                            {currencySymbol}{(e.toll + e.repair + e.misc).toLocaleString("en-IN")}
+                            {currencySymbol}
+                            {(e.toll + e.repair + e.misc).toLocaleString("en-IN")}
                           </TableCell>
                         </TableRow>
                       ))}
@@ -251,16 +333,27 @@ function ExpensesPage() {
       {/* Fuel Log Dialog */}
       <Dialog open={openFuel} onOpenChange={setOpenFuel}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Add Fuel Log</DialogTitle></DialogHeader>
-          <form onSubmit={fuelForm.handleSubmit(submitFuel as any)} className="grid grid-cols-2 gap-3">
+          <DialogHeader>
+            <DialogTitle>Add Fuel Log</DialogTitle>
+          </DialogHeader>
+          <form
+            onSubmit={fuelForm.handleSubmit(submitFuel as any)}
+            className="grid grid-cols-2 gap-3"
+          >
             <div className="col-span-2">
               <Label className="text-xs text-muted-foreground">Vehicle</Label>
               <Select onValueChange={(v) => fuelForm.setValue("vehicleId", v)}>
-                <SelectTrigger className="mt-1"><SelectValue placeholder="Select vehicle" /></SelectTrigger>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Select vehicle" />
+                </SelectTrigger>
                 <SelectContent>
-                  {vehicles.filter((v) => v.status !== "Retired").map((v) => (
-                    <SelectItem key={v.id} value={v.id}>{v.registration} · {v.name}</SelectItem>
-                  ))}
+                  {vehicles
+                    .filter((v) => v.status !== "Retired")
+                    .map((v) => (
+                      <SelectItem key={v.id} value={v.id}>
+                        {v.registration} · {v.name}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             </div>
@@ -273,12 +366,18 @@ function ExpensesPage() {
               <Input type="number" className="mt-1" {...fuelForm.register("liters")} />
             </div>
             <div className="col-span-2">
-              <Label className="text-xs text-muted-foreground">Price per Litre ({currencySymbol})</Label>
+              <Label className="text-xs text-muted-foreground">
+                Price per Litre ({currencySymbol})
+              </Label>
               <Input type="number" className="mt-1" {...fuelForm.register("pricePerLiter")} />
             </div>
             <DialogFooter className="col-span-2">
-              <Button type="button" variant="outline" onClick={() => setOpenFuel(false)}>Cancel</Button>
-              <Button type="submit" isLoading={fuelForm.formState.isSubmitting}>Add Log</Button>
+              <Button type="button" variant="outline" onClick={() => setOpenFuel(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" isLoading={fuelForm.formState.isSubmitting}>
+                Add Log
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -287,15 +386,24 @@ function ExpensesPage() {
       {/* Expense Dialog */}
       <Dialog open={openExp} onOpenChange={setOpenExp}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Add Expense Entry</DialogTitle></DialogHeader>
-          <form onSubmit={expForm.handleSubmit(submitExp as any)} className="grid grid-cols-2 gap-3">
+          <DialogHeader>
+            <DialogTitle>Add Expense Entry</DialogTitle>
+          </DialogHeader>
+          <form
+            onSubmit={expForm.handleSubmit(submitExp as any)}
+            className="grid grid-cols-2 gap-3"
+          >
             <div className="col-span-2">
               <Label className="text-xs text-muted-foreground">Vehicle</Label>
               <Select onValueChange={(v) => expForm.setValue("vehicleId", v)}>
-                <SelectTrigger className="mt-1"><SelectValue placeholder="Select vehicle" /></SelectTrigger>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Select vehicle" />
+                </SelectTrigger>
                 <SelectContent>
                   {vehicles.map((v) => (
-                    <SelectItem key={v.id} value={v.id}>{v.registration} · {v.name}</SelectItem>
+                    <SelectItem key={v.id} value={v.id}>
+                      {v.registration} · {v.name}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -303,10 +411,14 @@ function ExpensesPage() {
             <div className="col-span-2">
               <Label className="text-xs text-muted-foreground">Trip (optional)</Label>
               <Select onValueChange={(v) => expForm.setValue("tripId", v)}>
-                <SelectTrigger className="mt-1"><SelectValue placeholder="Link to trip (optional)" /></SelectTrigger>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Link to trip (optional)" />
+                </SelectTrigger>
                 <SelectContent>
                   {trips.map((t) => (
-                    <SelectItem key={t.id} value={t.id}>{t.id} · {t.source} → {t.destination}</SelectItem>
+                    <SelectItem key={t.id} value={t.id}>
+                      {t.id} · {t.source} → {t.destination}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -328,8 +440,12 @@ function ExpensesPage() {
               <Input type="date" className="mt-1" {...expForm.register("date")} />
             </div>
             <DialogFooter className="col-span-2">
-              <Button type="button" variant="outline" onClick={() => setOpenExp(false)}>Cancel</Button>
-              <Button type="submit" isLoading={expForm.formState.isSubmitting}>Add Entry</Button>
+              <Button type="button" variant="outline" onClick={() => setOpenExp(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" isLoading={expForm.formState.isSubmitting}>
+                Add Entry
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>

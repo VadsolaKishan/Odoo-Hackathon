@@ -3,8 +3,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
-  DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/context/AuthContext";
@@ -14,7 +18,12 @@ import { useEffect, useState } from "react";
 export function Navbar({ onMenu }: { onMenu?: () => void }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const initials = user?.name.split(" ").map((n) => n[0]).slice(0, 2).join("") ?? "U";
+  const initials =
+    user?.name
+      .split(" ")
+      .map((n) => n[0])
+      .slice(0, 2)
+      .join("") ?? "U";
 
   const [theme, setTheme] = useState(() => {
     if (typeof window !== "undefined") {
@@ -55,7 +64,11 @@ export function Navbar({ onMenu }: { onMenu?: () => void }) {
           className="navbar-action-btn"
           onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
         >
-          {theme === "dark" ? <Sun className="h-[18px] w-[18px] text-amber-400" /> : <Moon className="h-[18px] w-[18px] text-blue-400" />}
+          {theme === "dark" ? (
+            <Sun className="h-[18px] w-[18px] text-amber-400" />
+          ) : (
+            <Moon className="h-[18px] w-[18px] text-blue-400" />
+          )}
         </Button>
 
         {/* Notifications */}
@@ -80,7 +93,9 @@ export function Navbar({ onMenu }: { onMenu?: () => void }) {
                 <p className="navbar-user-name">{user?.name}</p>
                 <p className="navbar-user-email">{user?.email}</p>
               </div>
-              <Badge variant="secondary" className="navbar-role-badge hidden md:inline-flex">{user?.role}</Badge>
+              <Badge variant="secondary" className="navbar-role-badge hidden md:inline-flex">
+                {user?.role}
+              </Badge>
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
@@ -91,7 +106,9 @@ export function Navbar({ onMenu }: { onMenu?: () => void }) {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem><User className="mr-2 h-4 w-4" /> Profile</DropdownMenuItem>
+            <DropdownMenuItem>
+              <User className="mr-2 h-4 w-4" /> Profile
+            </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => {
                 logout();

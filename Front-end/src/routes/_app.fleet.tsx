@@ -9,11 +9,30 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PermissionGuard } from "@/components/ui/permission-guard";
 import { useStore } from "@/context/StoreContext";
@@ -29,25 +48,25 @@ export const Route = createFileRoute("/_app/fleet")({
 // ── Form schema ────────────────────────────────────────────
 const schema = z.object({
   registration: z.string().trim().min(4, "Min 4 characters").max(20),
-  name:         z.string().trim().min(1, "Required").max(80),
-  model:        z.string().trim().min(1, "Required").max(80),
-  type:         z.enum(["Truck", "Van", "Bus", "Car", "Trailer"]),
-  capacity:     z.coerce.number().int().min(1, "Must be > 0"),
-  odometer:     z.coerce.number().int().min(0),
-  cost:         z.coerce.number().min(0),
-  status:       z.enum(["Available", "On Trip", "In Shop", "Retired"]),
+  name: z.string().trim().min(1, "Required").max(80),
+  model: z.string().trim().min(1, "Required").max(80),
+  type: z.enum(["Truck", "Van", "Bus", "Car", "Trailer"]),
+  capacity: z.coerce.number().int().min(1, "Must be > 0"),
+  odometer: z.coerce.number().int().min(0),
+  cost: z.coerce.number().min(0),
+  status: z.enum(["Available", "On Trip", "In Shop", "Retired"]),
 });
 type FormValues = z.infer<typeof schema>;
 
-const VEHICLE_TYPES  = ["Truck", "Van", "Bus", "Car", "Trailer"] as const;
+const VEHICLE_TYPES = ["Truck", "Van", "Bus", "Car", "Trailer"] as const;
 const VEHICLE_STATUS = ["Available", "On Trip", "In Shop", "Retired"] as const;
 const PAGE_SIZE = 10;
 
 const typeColors: Record<string, string> = {
-  Truck:   "bg-orange-500/15 text-orange-400 border-orange-500/30",
-  Van:     "bg-blue-500/15 text-blue-400 border-blue-500/30",
-  Bus:     "bg-purple-500/15 text-purple-400 border-purple-500/30",
-  Car:     "bg-green-500/15 text-green-400 border-green-500/30",
+  Truck: "bg-orange-500/15 text-orange-400 border-orange-500/30",
+  Van: "bg-blue-500/15 text-blue-400 border-blue-500/30",
+  Bus: "bg-purple-500/15 text-purple-400 border-purple-500/30",
+  Car: "bg-green-500/15 text-green-400 border-green-500/30",
   Trailer: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30",
 };
 
@@ -55,12 +74,12 @@ function FleetPage() {
   const { vehicles, addVehicle, updateVehicle, currencySymbol, distanceUnit } = useStore();
   const { can } = usePermission();
 
-  const [q, setQ]             = useState("");
-  const [typeF, setTypeF]   = useState("all");
+  const [q, setQ] = useState("");
+  const [typeF, setTypeF] = useState("all");
   const [statusF, setStatusF] = useState("all");
   const [editing, setEditing] = useState<Vehicle | null>(null);
-  const [open, setOpen]     = useState(false);
-  const [page, setPage]     = useState(1);
+  const [open, setOpen] = useState(false);
+  const [page, setPage] = useState(1);
 
   const canManage = can("fleet", "manage");
 
@@ -69,29 +88,47 @@ function FleetPage() {
     const lq = q.toLowerCase();
     return vehicles.filter(
       (v) =>
-        (!lq || v.registration.toLowerCase().includes(lq) || v.name.toLowerCase().includes(lq) || v.model.toLowerCase().includes(lq)) &&
+        (!lq ||
+          v.registration.toLowerCase().includes(lq) ||
+          v.name.toLowerCase().includes(lq) ||
+          v.model.toLowerCase().includes(lq)) &&
         (typeF === "all" || v.type === typeF) &&
-        (statusF === "all" || v.status === statusF)
+        (statusF === "all" || v.status === statusF),
     );
   }, [vehicles, q, typeF, statusF]);
 
   // ── Pagination ───────────────────────────────────────────
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const safePage   = Math.min(page, totalPages);
-  const paginated  = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  const safePage = Math.min(page, totalPages);
+  const paginated = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   // ── Form ─────────────────────────────────────────────────
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      registration: "", name: "", model: "", type: "Truck",
-      capacity: 5000, odometer: 0, cost: 0, status: "Available",
+      registration: "",
+      name: "",
+      model: "",
+      type: "Truck",
+      capacity: 5000,
+      odometer: 0,
+      cost: 0,
+      status: "Available",
     },
   });
 
   const openAdd = () => {
     setEditing(null);
-    form.reset({ registration: "", name: "", model: "", type: "Truck", capacity: 5000, odometer: 0, cost: 0, status: "Available" });
+    form.reset({
+      registration: "",
+      name: "",
+      model: "",
+      type: "Truck",
+      capacity: 5000,
+      odometer: 0,
+      cost: 0,
+      status: "Available",
+    });
     setOpen(true);
   };
 
@@ -103,11 +140,17 @@ function FleetPage() {
 
   const onSubmit = async (values: FormValues) => {
     if (editing) {
-      await updateVehicle(editing.id, { ...values, registration: values.registration.toUpperCase() });
+      await updateVehicle(editing.id, {
+        ...values,
+        registration: values.registration.toUpperCase(),
+      });
       toast.success(`${values.registration.toUpperCase()} updated`);
     } else {
       const res = await addVehicle({ ...values, registration: values.registration.toUpperCase() });
-      if (!res.ok) { form.setError("registration", { message: res.error }); return; }
+      if (!res.ok) {
+        form.setError("registration", { message: res.error });
+        return;
+      }
       toast.success(`${values.registration.toUpperCase()} added to fleet`);
     }
     setOpen(false);
@@ -116,13 +159,16 @@ function FleetPage() {
   const isRetired = editing?.status === "Retired";
 
   // Stats
-  const stats = useMemo(() => ({
-    total:     vehicles.length,
-    available: vehicles.filter((v) => v.status === "Available").length,
-    onTrip:    vehicles.filter((v) => v.status === "On Trip").length,
-    inShop:    vehicles.filter((v) => v.status === "In Shop").length,
-    retired:   vehicles.filter((v) => v.status === "Retired").length,
-  }), [vehicles]);
+  const stats = useMemo(
+    () => ({
+      total: vehicles.length,
+      available: vehicles.filter((v) => v.status === "Available").length,
+      onTrip: vehicles.filter((v) => v.status === "On Trip").length,
+      inShop: vehicles.filter((v) => v.status === "In Shop").length,
+      retired: vehicles.filter((v) => v.status === "Retired").length,
+    }),
+    [vehicles],
+  );
 
   return (
     <div className="space-y-5 animate-fade-in">
@@ -166,22 +212,49 @@ function FleetPage() {
               <Input
                 placeholder="Search registration, name, model…"
                 value={q}
-                onChange={(e) => { setQ(e.target.value); setPage(1); }}
+                onChange={(e) => {
+                  setQ(e.target.value);
+                  setPage(1);
+                }}
                 className="pl-9"
               />
             </div>
-            <Select value={typeF} onValueChange={(v) => { setTypeF(v); setPage(1); }}>
-              <SelectTrigger className="sm:w-36"><SelectValue placeholder="Type" /></SelectTrigger>
+            <Select
+              value={typeF}
+              onValueChange={(v) => {
+                setTypeF(v);
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="sm:w-36">
+                <SelectValue placeholder="Type" />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All types</SelectItem>
-                {VEHICLE_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                {VEHICLE_TYPES.map((t) => (
+                  <SelectItem key={t} value={t}>
+                    {t}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
-            <Select value={statusF} onValueChange={(v) => { setStatusF(v); setPage(1); }}>
-              <SelectTrigger className="sm:w-36"><SelectValue placeholder="Status" /></SelectTrigger>
+            <Select
+              value={statusF}
+              onValueChange={(v) => {
+                setStatusF(v);
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="sm:w-36">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All statuses</SelectItem>
-                {VEHICLE_STATUS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                {VEHICLE_STATUS.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {s}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -191,7 +264,14 @@ function FleetPage() {
           {paginated.length === 0 ? (
             <EmptyState
               text="No vehicles match your filters."
-              action={canManage ? <Button onClick={openAdd} size="sm"><Plus className="mr-1.5 h-4 w-4" />Add Vehicle</Button> : undefined}
+              action={
+                canManage ? (
+                  <Button onClick={openAdd} size="sm">
+                    <Plus className="mr-1.5 h-4 w-4" />
+                    Add Vehicle
+                  </Button>
+                ) : undefined
+              }
             />
           ) : (
             <div className="overflow-x-auto">
@@ -211,16 +291,20 @@ function FleetPage() {
                 <TableBody>
                   {paginated.map((v) => (
                     <TableRow key={v.id} className="hover:bg-muted/30">
-                      <TableCell className="font-mono font-semibold text-sm">{v.registration}</TableCell>
+                      <TableCell className="font-mono font-semibold text-sm">
+                        {v.registration}
+                      </TableCell>
                       <TableCell>
                         <p className="font-medium text-sm">{v.name}</p>
                         <p className="text-xs text-muted-foreground">{v.model}</p>
                       </TableCell>
                       <TableCell>
-                        <span className={cn(
-                          "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold",
-                          typeColors[v.type] ?? "bg-muted text-muted-foreground"
-                        )}>
+                        <span
+                          className={cn(
+                            "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold",
+                            typeColors[v.type] ?? "bg-muted text-muted-foreground",
+                          )}
+                        >
                           {v.type}
                         </span>
                       </TableCell>
@@ -231,14 +315,21 @@ function FleetPage() {
                         {v.odometer.toLocaleString("en-IN")} {distanceUnit}
                       </TableCell>
                       <TableCell className="text-right tabular-nums text-sm">
-                        {currencySymbol}{v.cost.toLocaleString("en-IN")}
+                        {currencySymbol}
+                        {v.cost.toLocaleString("en-IN")}
                       </TableCell>
-                      <TableCell><StatusBadge status={v.status} /></TableCell>
+                      <TableCell>
+                        <StatusBadge status={v.status} />
+                      </TableCell>
                       <TableCell className="text-right">
                         <PermissionGuard
                           resource="fleet"
                           required="manage"
-                          fallback={<span className="text-[11px] text-muted-foreground italic">View only</span>}
+                          fallback={
+                            <span className="text-[11px] text-muted-foreground italic">
+                              View only
+                            </span>
+                          }
                         >
                           <Button
                             variant="ghost"
@@ -262,7 +353,8 @@ function FleetPage() {
           {totalPages > 1 && (
             <div className="flex items-center justify-between border-t border-border px-4 py-3">
               <p className="text-xs text-muted-foreground">
-                Showing {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, filtered.length)} of {filtered.length}
+                Showing {(safePage - 1) * PAGE_SIZE + 1}–
+                {Math.min(safePage * PAGE_SIZE, filtered.length)} of {filtered.length}
               </p>
               <div className="flex items-center gap-1">
                 <Button
@@ -308,7 +400,9 @@ function FleetPage() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>{editing ? `Edit · ${editing.registration}` : "Register New Vehicle"}</DialogTitle>
+            <DialogTitle>
+              {editing ? `Edit · ${editing.registration}` : "Register New Vehicle"}
+            </DialogTitle>
           </DialogHeader>
           {isRetired && (
             <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive">
@@ -317,7 +411,11 @@ function FleetPage() {
           )}
           <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-2 gap-3">
             <Field label="Registration" error={form.formState.errors.registration?.message}>
-              <Input {...form.register("registration")} disabled={isRetired} className="uppercase" />
+              <Input
+                {...form.register("registration")}
+                disabled={isRetired}
+                className="uppercase"
+              />
             </Field>
             <Field label="Vehicle Name" error={form.formState.errors.name?.message}>
               <Input {...form.register("name")} disabled={isRetired} />
@@ -331,9 +429,15 @@ function FleetPage() {
                 defaultValue={form.getValues("type")}
                 onValueChange={(v) => form.setValue("type", v as VehicleType)}
               >
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
-                  {VEHICLE_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                  {VEHICLE_TYPES.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {t}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </Field>
@@ -342,9 +446,15 @@ function FleetPage() {
                 defaultValue={form.getValues("status")}
                 onValueChange={(v) => form.setValue("status", v as VehicleStatus)}
               >
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
-                  {VEHICLE_STATUS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                  {VEHICLE_STATUS.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {s}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </Field>
@@ -358,8 +468,12 @@ function FleetPage() {
               <Input type="number" {...form.register("cost")} disabled={isRetired} />
             </Field>
             <DialogFooter className="col-span-2 pt-1">
-              <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-              <Button type="submit" isLoading={form.formState.isSubmitting}>{editing ? "Save Changes" : "Add to Fleet"}</Button>
+              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" isLoading={form.formState.isSubmitting}>
+                {editing ? "Save Changes" : "Add to Fleet"}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -368,8 +482,16 @@ function FleetPage() {
   );
 }
 
-function Field({ label, children, error, className }: {
-  label: string; children: React.ReactNode; error?: string; className?: string;
+function Field({
+  label,
+  children,
+  error,
+  className,
+}: {
+  label: string;
+  children: React.ReactNode;
+  error?: string;
+  className?: string;
 }) {
   return (
     <div className={className}>

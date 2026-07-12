@@ -1,15 +1,8 @@
-import type {
-  Driver,
-  Expense,
-  FuelLog,
-  MaintenanceRecord,
-  Trip,
-  Vehicle,
-} from "@/types";
+import type { Driver, Expense, FuelLog, MaintenanceRecord, Trip, Vehicle } from "@/types";
 
 const stateCodes = ["GJ", "MH", "RJ", "DL", "KA", "TN", "UP", "MP", "HR", "PB"];
 const letters = "ABCDEFGHJKLMNPQRSTUVWXYZ";
-const pick = <T,>(arr: T[], i: number) => arr[i % arr.length];
+const pick = <T>(arr: T[], i: number) => arr[i % arr.length];
 const rand = (seed: number) => {
   const x = Math.sin(seed) * 10000;
   return x - Math.floor(x);
@@ -56,17 +49,56 @@ export const vehicles: Vehicle[] = Array.from({ length: 25 }, (_, i) => {
 });
 
 const driverNames = [
-  "Alex Kumar", "John Fernandes", "Priya Sharma", "Rahul Mehta", "Sneha Patel",
-  "Amit Verma", "Neha Iyer", "Ravi Chauhan", "Karan Singh", "Meera Nair",
-  "Vikram Rao", "Anjali Desai", "Suresh Pillai", "Deepak Joshi", "Kavya Reddy",
-  "Rohan Malhotra", "Isha Kapoor", "Manish Gupta", "Pooja Bansal", "Arjun Menon",
-  "Divya Krishnan", "Nikhil Shah", "Sanjay Yadav", "Rekha Bhat", "Tarun Aggarwal",
-  "Ayesha Khan", "Vivek Trivedi", "Nisha Pathak", "Gaurav Rana", "Simran Kaur",
-  "Harish Chandra", "Preeti Saxena", "Naveen Kulkarni", "Lakshmi Menon", "Yash Gill",
-  "Ritu Bhalla", "Devendra Rathod", "Aarti Sinha", "Kunal Bose", "Farah Sheikh",
+  "Alex Kumar",
+  "John Fernandes",
+  "Priya Sharma",
+  "Rahul Mehta",
+  "Sneha Patel",
+  "Amit Verma",
+  "Neha Iyer",
+  "Ravi Chauhan",
+  "Karan Singh",
+  "Meera Nair",
+  "Vikram Rao",
+  "Anjali Desai",
+  "Suresh Pillai",
+  "Deepak Joshi",
+  "Kavya Reddy",
+  "Rohan Malhotra",
+  "Isha Kapoor",
+  "Manish Gupta",
+  "Pooja Bansal",
+  "Arjun Menon",
+  "Divya Krishnan",
+  "Nikhil Shah",
+  "Sanjay Yadav",
+  "Rekha Bhat",
+  "Tarun Aggarwal",
+  "Ayesha Khan",
+  "Vivek Trivedi",
+  "Nisha Pathak",
+  "Gaurav Rana",
+  "Simran Kaur",
+  "Harish Chandra",
+  "Preeti Saxena",
+  "Naveen Kulkarni",
+  "Lakshmi Menon",
+  "Yash Gill",
+  "Ritu Bhalla",
+  "Devendra Rathod",
+  "Aarti Sinha",
+  "Kunal Bose",
+  "Farah Sheikh",
 ];
 const licenseCats = ["LMV", "HMV", "HTV", "PSV"] as const;
-const driverStatuses = ["Available", "Available", "On Trip", "Off Duty", "Available", "Suspended"] as const;
+const driverStatuses = [
+  "Available",
+  "Available",
+  "On Trip",
+  "Off Duty",
+  "Available",
+  "Suspended",
+] as const;
 
 export const drivers: Driver[] = driverNames.map((name, i) => {
   const yearOffset = i % 5 === 0 ? -1 : i % 3; // some expired
@@ -84,9 +116,27 @@ export const drivers: Driver[] = driverNames.map((name, i) => {
   };
 });
 
-const cities = ["Mumbai", "Delhi", "Bangalore", "Chennai", "Kolkata", "Ahmedabad", "Pune", "Jaipur", "Hyderabad", "Surat"];
+const cities = [
+  "Mumbai",
+  "Delhi",
+  "Bangalore",
+  "Chennai",
+  "Kolkata",
+  "Ahmedabad",
+  "Pune",
+  "Jaipur",
+  "Hyderabad",
+  "Surat",
+];
 
-const tripStatuses = ["Draft", "Dispatched", "Dispatched", "Completed", "Completed", "Cancelled"] as const;
+const tripStatuses = [
+  "Draft",
+  "Dispatched",
+  "Dispatched",
+  "Completed",
+  "Completed",
+  "Cancelled",
+] as const;
 export const trips: Trip[] = Array.from({ length: 18 }, (_, i) => {
   const src = pick(cities, i);
   const dst = pick(cities, i + 3);
@@ -107,7 +157,14 @@ export const trips: Trip[] = Array.from({ length: 18 }, (_, i) => {
   };
 });
 
-const serviceTypes = ["Oil Change", "Tire Rotation", "Brake Service", "Engine Repair", "Battery Replacement", "General Inspection"];
+const serviceTypes = [
+  "Oil Change",
+  "Tire Rotation",
+  "Brake Service",
+  "Engine Repair",
+  "Battery Replacement",
+  "General Inspection",
+];
 const maintStatuses = ["Scheduled", "In Progress", "Completed"] as const;
 export const maintenance: MaintenanceRecord[] = Array.from({ length: 8 }, (_, i) => ({
   id: `M${String(i + 1).padStart(3, "0")}`,

@@ -310,7 +310,9 @@
   border-radius: var(--radius-md);
   font-size: 13px;
   width: 100%;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
 }
 
 .navbar-search-input:focus {

@@ -9,9 +9,28 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PermissionGuard } from "@/components/ui/permission-guard";
@@ -26,17 +45,23 @@ export const Route = createFileRoute("/_app/maintenance")({
 });
 
 const schema = z.object({
-  vehicleId:   z.string().min(1, "Select a vehicle"),
+  vehicleId: z.string().min(1, "Select a vehicle"),
   serviceType: z.string().trim().min(1, "Required"),
-  cost:        z.coerce.number().min(0),
-  date:        z.string().min(1, "Required"),
-  status:      z.enum(["Scheduled", "In Progress", "Completed"]),
+  cost: z.coerce.number().min(0),
+  date: z.string().min(1, "Required"),
+  status: z.enum(["Scheduled", "In Progress", "Completed"]),
 });
 type FormValues = z.infer<typeof schema>;
 
 const SERVICE_TYPES = [
-  "Oil Change", "Tire Rotation", "Brake Service", "Engine Repair",
-  "Battery Replacement", "General Inspection", "Transmission Service", "AC Repair",
+  "Oil Change",
+  "Tire Rotation",
+  "Brake Service",
+  "Engine Repair",
+  "Battery Replacement",
+  "General Inspection",
+  "Transmission Service",
+  "AC Repair",
 ];
 const MAINT_STATUSES = ["Scheduled", "In Progress", "Completed"] as const;
 
@@ -53,8 +78,11 @@ function MaintenancePage() {
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      vehicleId: "", serviceType: "Oil Change", cost: 2500,
-      date: new Date().toISOString().slice(0, 10), status: "Scheduled",
+      vehicleId: "",
+      serviceType: "Oil Change",
+      cost: 2500,
+      date: new Date().toISOString().slice(0, 10),
+      status: "Scheduled",
     },
   });
 
@@ -69,24 +97,25 @@ function MaintenancePage() {
     form.reset();
   };
 
-  const vehicleById = useMemo(
-    () => Object.fromEntries(vehicles.map((v) => [v.id, v])),
-    [vehicles]
-  );
+  const vehicleById = useMemo(() => Object.fromEntries(vehicles.map((v) => [v.id, v])), [vehicles]);
 
   const filtered = useMemo(
-    () => statusFilter === "all" ? maintenance : maintenance.filter((m) => m.status === statusFilter),
-    [maintenance, statusFilter]
+    () =>
+      statusFilter === "all" ? maintenance : maintenance.filter((m) => m.status === statusFilter),
+    [maintenance, statusFilter],
   );
 
   // Stats
-  const stats = useMemo(() => ({
-    total:      maintenance.length,
-    scheduled:  maintenance.filter((m) => m.status === "Scheduled").length,
-    inProgress: maintenance.filter((m) => m.status === "In Progress").length,
-    completed:  maintenance.filter((m) => m.status === "Completed").length,
-    totalCost:  maintenance.reduce((s, m) => s + m.cost, 0),
-  }), [maintenance]);
+  const stats = useMemo(
+    () => ({
+      total: maintenance.length,
+      scheduled: maintenance.filter((m) => m.status === "Scheduled").length,
+      inProgress: maintenance.filter((m) => m.status === "In Progress").length,
+      completed: maintenance.filter((m) => m.status === "Completed").length,
+      totalCost: maintenance.reduce((s, m) => s + m.cost, 0),
+    }),
+    [maintenance],
+  );
 
   return (
     <div className="space-y-5 animate-fade-in">
@@ -112,7 +141,11 @@ function MaintenancePage() {
           { label: "Scheduled", count: stats.scheduled, color: "text-warning" },
           { label: "In Progress", count: stats.inProgress, color: "text-blue-400" },
           { label: "Completed", count: stats.completed, color: "text-success" },
-          { label: "Total Cost", count: `${currencySymbol}${Math.round(stats.totalCost / 1000)}k`, color: "text-primary" },
+          {
+            label: "Total Cost",
+            count: `${currencySymbol}${Math.round(stats.totalCost / 1000)}k`,
+            color: "text-primary",
+          },
         ].map(({ label, count, color }) => (
           <Card key={label} className="p-3">
             <p className="text-xs text-muted-foreground">{label}</p>
@@ -134,7 +167,7 @@ function MaintenancePage() {
                   "rounded-full px-3 py-1 text-xs font-medium border transition-all capitalize",
                   statusFilter === s
                     ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-transparent text-muted-foreground border-border hover:border-foreground/30 hover:text-foreground"
+                    : "bg-transparent text-muted-foreground border-border hover:border-foreground/30 hover:text-foreground",
                 )}
               >
                 {s === "all" ? "All" : s}
@@ -147,7 +180,14 @@ function MaintenancePage() {
           {filtered.length === 0 ? (
             <EmptyState
               text="No maintenance records found."
-              action={canManage ? <Button onClick={() => setOpen(true)} size="sm"><Plus className="mr-1.5 h-4 w-4" />New Record</Button> : undefined}
+              action={
+                canManage ? (
+                  <Button onClick={() => setOpen(true)} size="sm">
+                    <Plus className="mr-1.5 h-4 w-4" />
+                    New Record
+                  </Button>
+                ) : undefined
+              }
             />
           ) : (
             <div className="overflow-x-auto">
@@ -168,9 +208,13 @@ function MaintenancePage() {
                     const vehicle = vehicleById[m.vehicleId];
                     return (
                       <TableRow key={m.id} className="hover:bg-muted/30">
-                        <TableCell className="font-mono text-xs text-muted-foreground">{m.id}</TableCell>
+                        <TableCell className="font-mono text-xs text-muted-foreground">
+                          {m.id}
+                        </TableCell>
                         <TableCell>
-                          <p className="font-mono text-sm font-semibold">{vehicle?.registration ?? "—"}</p>
+                          <p className="font-mono text-sm font-semibold">
+                            {vehicle?.registration ?? "—"}
+                          </p>
                           <p className="text-xs text-muted-foreground">{vehicle?.name}</p>
                         </TableCell>
                         <TableCell className="font-medium text-sm">{m.serviceType}</TableCell>
@@ -178,9 +222,12 @@ function MaintenancePage() {
                           {m.date ? new Date(m.date).toLocaleDateString("en-IN") : "—"}
                         </TableCell>
                         <TableCell className="text-right tabular-nums font-medium">
-                          {currencySymbol}{m.cost.toLocaleString("en-IN")}
+                          {currencySymbol}
+                          {m.cost.toLocaleString("en-IN")}
                         </TableCell>
-                        <TableCell><StatusBadge status={m.status} /></TableCell>
+                        <TableCell>
+                          <StatusBadge status={m.status} />
+                        </TableCell>
                         <TableCell className="text-right">
                           <PermissionGuard resource="maintenance" required="manage">
                             {m.status !== "Completed" ? (
@@ -192,7 +239,9 @@ function MaintenancePage() {
                                     className="h-7 text-xs"
                                     onClick={async () => {
                                       setStartingId(m.id);
-                                      const res = await updateMaintenance(m.id, { status: "In Progress" });
+                                      const res = await updateMaintenance(m.id, {
+                                        status: "In Progress",
+                                      });
                                       setStartingId(null);
                                       if (res.ok) toast.success("Status → In Progress");
                                       else toast.error(res.error);
@@ -208,7 +257,9 @@ function MaintenancePage() {
                                   className="h-7 text-xs"
                                   onClick={async () => {
                                     setCompletingId(m.id);
-                                    const res = await updateMaintenance(m.id, { status: "Completed" });
+                                    const res = await updateMaintenance(m.id, {
+                                      status: "Completed",
+                                    });
                                     setCompletingId(null);
                                     if (res.ok) toast.success("Completed · Vehicle set Available");
                                     else toast.error(res.error);
@@ -244,41 +295,68 @@ function MaintenancePage() {
             <DialogTitle>New Maintenance Record</DialogTitle>
           </DialogHeader>
           <p className="text-xs text-muted-foreground -mt-2">
-            Scheduling or starting maintenance will change vehicle status to <strong>In Shop</strong>.
+            Scheduling or starting maintenance will change vehicle status to{" "}
+            <strong>In Shop</strong>.
           </p>
           <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-2 gap-3 pt-1">
             <div className="col-span-2">
               <Label className="text-xs text-muted-foreground">Vehicle</Label>
               <Select onValueChange={(v) => form.setValue("vehicleId", v)}>
-                <SelectTrigger className="mt-1"><SelectValue placeholder="Select vehicle" /></SelectTrigger>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Select vehicle" />
+                </SelectTrigger>
                 <SelectContent>
-                  {vehicles.filter((v) => v.status !== "Retired").map((v) => (
-                    <SelectItem key={v.id} value={v.id}>
-                      {v.registration} · {v.name}
-                      {v.status !== "Available" && <span className="text-muted-foreground ml-1">({v.status})</span>}
-                    </SelectItem>
-                  ))}
+                  {vehicles
+                    .filter((v) => v.status !== "Retired")
+                    .map((v) => (
+                      <SelectItem key={v.id} value={v.id}>
+                        {v.registration} · {v.name}
+                        {v.status !== "Available" && (
+                          <span className="text-muted-foreground ml-1">({v.status})</span>
+                        )}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
               {form.formState.errors.vehicleId && (
-                <p className="mt-1 text-[11px] text-destructive">{form.formState.errors.vehicleId.message}</p>
+                <p className="mt-1 text-[11px] text-destructive">
+                  {form.formState.errors.vehicleId.message}
+                </p>
               )}
             </div>
             <div>
               <Label className="text-xs text-muted-foreground">Service Type</Label>
-              <Select defaultValue={form.getValues("serviceType")} onValueChange={(v) => form.setValue("serviceType", v)}>
-                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+              <Select
+                defaultValue={form.getValues("serviceType")}
+                onValueChange={(v) => form.setValue("serviceType", v)}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
-                  {SERVICE_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                  {SERVICE_TYPES.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {t}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div>
               <Label className="text-xs text-muted-foreground">Status</Label>
-              <Select defaultValue={form.getValues("status")} onValueChange={(v) => form.setValue("status", v as MaintenanceStatus)}>
-                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+              <Select
+                defaultValue={form.getValues("status")}
+                onValueChange={(v) => form.setValue("status", v as MaintenanceStatus)}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
-                  {MAINT_STATUSES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                  {MAINT_STATUSES.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {s}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -291,8 +369,12 @@ function MaintenancePage() {
               <Input type="date" className="mt-1" {...form.register("date")} />
             </div>
             <DialogFooter className="col-span-2 pt-1">
-              <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-              <Button type="submit" isLoading={form.formState.isSubmitting}>Save Record</Button>
+              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" isLoading={form.formState.isSubmitting}>
+                Save Record
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>

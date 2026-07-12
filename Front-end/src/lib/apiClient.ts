@@ -19,8 +19,15 @@ function transformData(obj: any): any {
     const res: any = {};
     for (const key in obj) {
       if (typeof obj[key] === "string" && (key === "status" || key === "type")) {
-        res[key] = obj[key].toLowerCase().split("_").map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
-      } else if (typeof obj[key] === "string" && (key === "date" || key === "expiry" || key === "createdAt" || key === "updatedAt")) {
+        res[key] = obj[key]
+          .toLowerCase()
+          .split("_")
+          .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(" ");
+      } else if (
+        typeof obj[key] === "string" &&
+        (key === "date" || key === "expiry" || key === "createdAt" || key === "updatedAt")
+      ) {
         res[key] = obj[key].split("T")[0];
       } else {
         res[key] = transformData(obj[key]);
@@ -31,12 +38,15 @@ function transformData(obj: any): any {
   return obj;
 }
 
-export async function apiClient<T>(endpoint: string, options: RequestInit = {}): Promise<{ success: boolean; data?: T; error?: any }> {
+export async function apiClient<T>(
+  endpoint: string,
+  options: RequestInit = {},
+): Promise<{ success: boolean; data?: T; error?: any }> {
   const token = getToken();
-  
+
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    ...(options.headers as Record<string, string> || {}),
+    ...((options.headers as Record<string, string>) || {}),
   };
 
   if (token) {

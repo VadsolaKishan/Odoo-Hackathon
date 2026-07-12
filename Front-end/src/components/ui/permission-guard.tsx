@@ -48,9 +48,7 @@ export function PermissionGuard({
   const role = user?.role;
 
   const allowed =
-    required === null
-      ? canAccess(role, resource)
-      : hasPermission(role, resource, required);
+    required === null ? canAccess(role, resource) : hasPermission(role, resource, required);
 
   if (allowed) return <>{children}</>;
 
@@ -63,8 +61,8 @@ export function PermissionGuard({
         <div>
           <h3 className="text-lg font-semibold">Access Restricted</h3>
           <p className="mt-1 text-sm text-muted-foreground max-w-xs">
-            Your role <span className="font-medium text-foreground">({role})</span> does not
-            have permission to view this page.
+            Your role <span className="font-medium text-foreground">({role})</span> does not have
+            permission to view this page.
           </p>
         </div>
       </div>

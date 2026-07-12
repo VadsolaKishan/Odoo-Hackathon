@@ -19,9 +19,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </Sheet>
       <div className="flex min-w-0 flex-1 flex-col">
         <Navbar onMenu={() => setOpen(true)} />
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 animate-in fade-in duration-300">
-          {children}
-        </main>
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 animate-in fade-in duration-300">{children}</main>
       </div>
     </div>
   );

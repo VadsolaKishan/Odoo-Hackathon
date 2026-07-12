@@ -1,4 +1,12 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import type { UserRole } from "@/types";
 
 interface AuthUser {
@@ -11,16 +19,40 @@ interface AuthUser {
 interface AuthState {
   user: AuthUser | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string, role: UserRole) => Promise<{ ok: boolean; error?: string; locked?: boolean }>;
+  login: (
+    email: string,
+    password: string,
+    role: UserRole,
+  ) => Promise<{ ok: boolean; error?: string; locked?: boolean }>;
   logout: () => void;
   canWrite: (module: "Fleet" | "Drivers" | "Trips" | "Fuel") => boolean;
 }
 
 const rbac: Record<string, Record<string, string>> = {
-  Fleet:     { FLEET_MANAGER: "Manage", DISPATCHER: "View",   SAFETY_OFFICER: "View",     FINANCIAL_ANALYST: "Read Only" },
-  Drivers:   { FLEET_MANAGER: "Manage", DISPATCHER: "Edit",   SAFETY_OFFICER: "Manage",   FINANCIAL_ANALYST: "Read Only" },
-  Trips:     { FLEET_MANAGER: "View",   DISPATCHER: "Manage", SAFETY_OFFICER: "View",     FINANCIAL_ANALYST: "Read Only" },
-  Fuel:      { FLEET_MANAGER: "Edit",   DISPATCHER: "Edit",   SAFETY_OFFICER: "Read Only",FINANCIAL_ANALYST: "Manage"   },
+  Fleet: {
+    FLEET_MANAGER: "Manage",
+    DISPATCHER: "View",
+    SAFETY_OFFICER: "View",
+    FINANCIAL_ANALYST: "Read Only",
+  },
+  Drivers: {
+    FLEET_MANAGER: "Manage",
+    DISPATCHER: "Edit",
+    SAFETY_OFFICER: "Manage",
+    FINANCIAL_ANALYST: "Read Only",
+  },
+  Trips: {
+    FLEET_MANAGER: "View",
+    DISPATCHER: "Manage",
+    SAFETY_OFFICER: "View",
+    FINANCIAL_ANALYST: "Read Only",
+  },
+  Fuel: {
+    FLEET_MANAGER: "Edit",
+    DISPATCHER: "Edit",
+    SAFETY_OFFICER: "Read Only",
+    FINANCIAL_ANALYST: "Manage",
+  },
 };
 
 const AuthContext = createContext<AuthState | null>(null);
@@ -49,38 +81,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await fetch("http://localhost:4000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, role })
+        body: JSON.stringify({ email, password, role }),
       });
       const data = await res.json();
-      
+
       if (!data.success) {
         const nextCount = attempts.count + 1;
         const locked = nextCount >= 3;
         window.localStorage.setItem(
           ATTEMPT_KEY,
-          JSON.stringify({ count: locked ? 0 : nextCount, until: locked ? Date.now() + 5 * 60_000 : 0 })
+          JSON.stringify({
+            count: locked ? 0 : nextCount,
+            until: locked ? Date.now() + 5 * 60_000 : 0,
+          }),
         );
-        return { 
-          ok: false, 
-          locked, 
-          error: locked 
-            ? "Too many failed attempts. Account locked for 5 minutes." 
-            : data.error?.message || `Invalid credentials. ${3 - nextCount} attempts left.` 
+        return {
+          ok: false,
+          locked,
+          error: locked
+            ? "Too many failed attempts. Account locked for 5 minutes."
+            : data.error?.message || `Invalid credentials. ${3 - nextCount} attempts left.`,
         };
       }
 
       window.localStorage.removeItem(ATTEMPT_KEY);
       const token = data.data.token;
       const backendUser = data.data.user;
-      
-      const u: AuthUser = { 
+
+      const u: AuthUser = {
         id: backendUser.id,
-        email: backendUser.email, 
-        name: backendUser.name, 
-        role: backendUser.role, 
-        token 
+        email: backendUser.email,
+        name: backendUser.name,
+        role: backendUser.role,
+        token,
       };
-      
+
       setUser(u);
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(u));
       return { ok: true };
@@ -94,15 +129,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     window.localStorage.removeItem(STORAGE_KEY);
   }, []);
 
-  const canWrite = useCallback((module: "Fleet" | "Drivers" | "Trips" | "Fuel") => {
-    if (!user) return false;
-    const perm = rbac[module]?.[user.role] || "—";
-    return perm === "Manage" || perm === "Edit";
-  }, [user]);
+  const canWrite = useCallback(
+    (module: "Fleet" | "Drivers" | "Trips" | "Fuel") => {
+      if (!user) return false;
+      const perm = rbac[module]?.[user.role] || "—";
+      return perm === "Manage" || perm === "Edit";
+    },
+    [user],
+  );
 
   const value = useMemo<AuthState>(
     () => ({ user, isAuthenticated: !!user, login, logout, canWrite }),
-    [user, login, logout, canWrite]
+    [user, login, logout, canWrite],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

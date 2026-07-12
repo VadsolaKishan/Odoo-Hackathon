@@ -21,14 +21,22 @@ const tintMap = {
   muted: "bg-muted text-muted-foreground",
 };
 
-export function KpiCard({ label, value, prefix, suffix, icon: Icon, tint = "primary", delta }: Props) {
+export function KpiCard({
+  label,
+  value,
+  prefix,
+  suffix,
+  icon: Icon,
+  tint = "primary",
+  delta,
+}: Props) {
   const [display, setDisplay] = useState(0);
   const rafRef = useRef<number | null>(null);
-  
+
   useEffect(() => {
     // If value is not a number, just display it as is (fallback to 0 for animation)
-    const numericValue = typeof value === 'number' ? value : 0;
-    
+    const numericValue = typeof value === "number" ? value : 0;
+
     const start = performance.now();
     const from = display;
     const duration = 700;
@@ -49,7 +57,9 @@ export function KpiCard({ label, value, prefix, suffix, icon: Icon, tint = "prim
     <Card className="p-5 transition-all hover:shadow-md hover:-translate-y-0.5">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            {label}
+          </p>
           <p className="mt-2 text-3xl font-bold tabular-nums text-foreground">
             {prefix && <span className="mr-0.5">{prefix}</span>}
             {display.toLocaleString()}

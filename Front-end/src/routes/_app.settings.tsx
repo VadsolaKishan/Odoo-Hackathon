@@ -7,7 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { PermissionGuard } from "@/components/ui/permission-guard";
 import { PERMISSIONS } from "@/lib/permissions";
 import type { Resource } from "@/lib/permissions";
@@ -19,15 +25,26 @@ export const Route = createFileRoute("/_app/settings")({
   component: SettingsPage,
 });
 
-const RESOURCES: Resource[] = ["fleet", "drivers", "trips", "maintenance", "fuel", "analytics", "settings"];
+const RESOURCES: Resource[] = [
+  "fleet",
+  "drivers",
+  "trips",
+  "maintenance",
+  "fuel",
+  "analytics",
+  "settings",
+];
 const ROLES = ["Fleet Manager", "Dispatcher", "Safety Officer", "Financial Analyst"] as const;
 
 const permissionLabel: Record<string, { label: string; color: string }> = {
-  manage:          { label: "Manage",       color: "bg-primary/20 text-primary border-primary/30" },
-  edit:            { label: "Edit",         color: "bg-blue-500/20 text-blue-400 border-blue-500/30" },
-  edit_assignment: { label: "Edit Assign.", color: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30" },
-  view:            { label: "View",         color: "bg-success/20 text-success border-success/30" },
-  read:            { label: "Read Only",    color: "bg-muted text-muted-foreground border-border" },
+  manage: { label: "Manage", color: "bg-primary/20 text-primary border-primary/30" },
+  edit: { label: "Edit", color: "bg-blue-500/20 text-blue-400 border-blue-500/30" },
+  edit_assignment: {
+    label: "Edit Assign.",
+    color: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30",
+  },
+  view: { label: "View", color: "bg-success/20 text-success border-success/30" },
+  read: { label: "Read Only", color: "bg-muted text-muted-foreground border-border" },
 };
 
 function SettingsPage() {
@@ -82,16 +99,24 @@ function SettingsPage() {
               <div>
                 <Label className="text-xs text-muted-foreground">Currency</Label>
                 <Select value={currency} onValueChange={setCurrency}>
-                  <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="mt-1.5">
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
-                    {["INR", "USD", "EUR", "GBP", "AED"].map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                    {["INR", "USD", "EUR", "GBP", "AED"].map((c) => (
+                      <SelectItem key={c} value={c}>
+                        {c}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
               <div>
                 <Label className="text-xs text-muted-foreground">Distance Unit</Label>
                 <Select value={unit} onValueChange={setUnit}>
-                  <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="mt-1.5">
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="km">Kilometres</SelectItem>
                     <SelectItem value="mi">Miles</SelectItem>
@@ -99,7 +124,9 @@ function SettingsPage() {
                 </Select>
               </div>
               <div className="sm:col-span-3 flex justify-end">
-                <Button onClick={handleSave}><Check className="mr-2 h-4 w-4" /> Save changes</Button>
+                <Button onClick={handleSave}>
+                  <Check className="mr-2 h-4 w-4" /> Save changes
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -120,7 +147,10 @@ function SettingsPage() {
                         Resource
                       </th>
                       {ROLES.map((r) => (
-                        <th key={r} className="py-3 px-4 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wide whitespace-nowrap">
+                        <th
+                          key={r}
+                          className="py-3 px-4 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wide whitespace-nowrap"
+                        >
                           {r}
                         </th>
                       ))}
@@ -132,7 +162,7 @@ function SettingsPage() {
                         key={resource}
                         className={cn(
                           "border-b border-border last:border-0",
-                          idx % 2 === 0 ? "bg-transparent" : "bg-muted/20"
+                          idx % 2 === 0 ? "bg-transparent" : "bg-muted/20",
                         )}
                       >
                         <td className="py-3 px-4 font-medium capitalize">{resource}</td>
@@ -142,10 +172,12 @@ function SettingsPage() {
                           return (
                             <td key={role} className="py-3 px-4 text-center">
                               {meta ? (
-                                <span className={cn(
-                                  "inline-flex items-center justify-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold whitespace-nowrap",
-                                  meta.color
-                                )}>
+                                <span
+                                  className={cn(
+                                    "inline-flex items-center justify-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold whitespace-nowrap",
+                                    meta.color,
+                                  )}
+                                >
                                   {meta.label}
                                 </span>
                               ) : (

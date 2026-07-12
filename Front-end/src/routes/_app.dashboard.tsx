@@ -1,12 +1,32 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Truck, Users, Route as RouteIcon, Wrench, Activity, CheckCircle2, Clock, Percent } from "lucide-react";
+import {
+  Truck,
+  Users,
+  Route as RouteIcon,
+  Wrench,
+  Activity,
+  CheckCircle2,
+  Clock,
+  Percent,
+} from "lucide-react";
 import { KpiCard } from "@/components/ui/kpi-card";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import { useMemo, useState } from "react";
@@ -32,7 +52,7 @@ function Dashboard() {
   const filteredVehicles = vehicles.filter(
     (v) =>
       (typeFilter === "all" || v.type === typeFilter) &&
-      (statusFilter === "all" || v.status === statusFilter)
+      (statusFilter === "all" || v.status === statusFilter),
   );
 
   const stats = useMemo(() => {
@@ -56,16 +76,31 @@ function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Dashboard" description="Real-time overview of your fleet and operations." />
+      <PageHeader
+        title="Dashboard"
+        description="Real-time overview of your fleet and operations."
+      />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard label="Active Vehicles" value={stats.active} icon={Truck} tint="primary" delta="of total fleet" />
+        <KpiCard
+          label="Active Vehicles"
+          value={stats.active}
+          icon={Truck}
+          tint="primary"
+          delta="of total fleet"
+        />
         <KpiCard label="Available" value={stats.available} icon={CheckCircle2} tint="success" />
         <KpiCard label="In Maintenance" value={stats.inShop} icon={Wrench} tint="primary" />
         <KpiCard label="Active Trips" value={stats.activeTrips} icon={RouteIcon} tint="info" />
         <KpiCard label="Pending Trips" value={stats.pending} icon={Clock} tint="muted" />
         <KpiCard label="Drivers On Duty" value={stats.onDuty} icon={Users} tint="info" />
-        <KpiCard label="Fleet Utilization" value={stats.util} suffix="%" icon={Percent} tint="success" />
+        <KpiCard
+          label="Fleet Utilization"
+          value={stats.util}
+          suffix="%"
+          icon={Percent}
+          tint="success"
+        />
         <KpiCard label="Total Trips" value={trips.length} icon={Activity} tint="primary" />
       </div>
 
@@ -75,20 +110,28 @@ function Dashboard() {
             <CardTitle>Recent Trips</CardTitle>
             <div className="flex gap-2">
               <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="w-32 h-9"><SelectValue placeholder="Type" /></SelectTrigger>
+                <SelectTrigger className="w-32 h-9">
+                  <SelectValue placeholder="Type" />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All types</SelectItem>
                   {["Truck", "Van", "Bus", "Car", "Trailer"].map((t) => (
-                    <SelectItem key={t} value={t}>{t}</SelectItem>
+                    <SelectItem key={t} value={t}>
+                      {t}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-32 h-9"><SelectValue placeholder="Status" /></SelectTrigger>
+                <SelectTrigger className="w-32 h-9">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All status</SelectItem>
                   {["Available", "On Trip", "In Shop", "Retired"].map((s) => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                    <SelectItem key={s} value={s}>
+                      {s}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -108,24 +151,31 @@ function Dashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {trips.filter((t) => {
-                    const v = vehicleById[t.vehicleId];
-                    if (!v) return false;
-                    const matchType = typeFilter === "all" || v.type === typeFilter;
-                    const matchStatus = statusFilter === "all" || v.status === statusFilter;
-                    return matchType && matchStatus;
-                  }).slice(0, 8).map((t) => (
-                    <TableRow key={t.id}>
-                      <TableCell className="font-mono text-xs">{t.id}</TableCell>
-                      <TableCell>{vehicleById[t.vehicleId]?.registration ?? "—"}</TableCell>
-                      <TableCell>{driverById[t.driverId]?.name ?? "—"}</TableCell>
-                      <TableCell className="text-muted-foreground text-xs">
-                        {t.source} → {t.destination}
-                      </TableCell>
-                      <TableCell><StatusBadge status={t.status} /></TableCell>
-                      <TableCell className="text-xs">{new Date(t.eta).toLocaleString()}</TableCell>
-                    </TableRow>
-                  ))}
+                  {trips
+                    .filter((t) => {
+                      const v = vehicleById[t.vehicleId];
+                      if (!v) return false;
+                      const matchType = typeFilter === "all" || v.type === typeFilter;
+                      const matchStatus = statusFilter === "all" || v.status === statusFilter;
+                      return matchType && matchStatus;
+                    })
+                    .slice(0, 8)
+                    .map((t) => (
+                      <TableRow key={t.id}>
+                        <TableCell className="font-mono text-xs">{t.id}</TableCell>
+                        <TableCell>{vehicleById[t.vehicleId]?.registration ?? "—"}</TableCell>
+                        <TableCell>{driverById[t.driverId]?.name ?? "—"}</TableCell>
+                        <TableCell className="text-muted-foreground text-xs">
+                          {t.source} → {t.destination}
+                        </TableCell>
+                        <TableCell>
+                          <StatusBadge status={t.status} />
+                        </TableCell>
+                        <TableCell className="text-xs">
+                          {new Date(t.eta).toLocaleString()}
+                        </TableCell>
+                      </TableRow>
+                    ))}
                 </TableBody>
               </Table>
             </div>
@@ -136,12 +186,21 @@ function Dashboard() {
         </Card>
 
         <Card>
-          <CardHeader><CardTitle>Vehicle Status</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle>Vehicle Status</CardTitle>
+          </CardHeader>
           <CardContent>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={chartData} dataKey="value" nameKey="name" innerRadius={55} outerRadius={90} paddingAngle={2}>
+                  <Pie
+                    data={chartData}
+                    dataKey="value"
+                    nameKey="name"
+                    innerRadius={55}
+                    outerRadius={90}
+                    paddingAngle={2}
+                  >
                     {chartData.map((entry) => (
                       <Cell key={entry.name} fill={COLORS[entry.name]} />
                     ))}
@@ -196,7 +255,10 @@ function TransitMap({ activeTrips }: { activeTrips: Trip[] }) {
       </CardHeader>
       <CardContent>
         <div className="relative overflow-hidden rounded-lg border bg-card p-4 min-h-[400px] flex items-center justify-center">
-          <svg className="w-full max-w-[600px] aspect-[4/3] stroke-slate-500/10 fill-none" viewBox="0 0 600 550">
+          <svg
+            className="w-full max-w-[600px] aspect-[4/3] stroke-slate-500/10 fill-none"
+            viewBox="0 0 600 550"
+          >
             {/* Background Grid Lines */}
             <g className="stroke-slate-500/[0.04] stroke-[0.5]">
               {Array.from({ length: 12 }, (_, i) => (
@@ -209,26 +271,28 @@ function TransitMap({ activeTrips }: { activeTrips: Trip[] }) {
 
             {/* Static Connection Lines */}
             {Object.keys(CITY_COORDS).map((c1, i) =>
-              Object.keys(CITY_COORDS).slice(i + 1).map((c2) => {
-                const p1 = CITY_COORDS[c1];
-                const p2 = CITY_COORDS[c2];
-                const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
-                if (dist < 220) {
-                  return (
-                    <line
-                      key={`${c1}-${c2}`}
-                      x1={p1.x}
-                      y1={p1.y}
-                      x2={p2.x}
-                      y2={p2.y}
-                      stroke="currentColor"
-                      className="text-border"
-                      strokeWidth="1"
-                    />
-                  );
-                }
-                return null;
-              })
+              Object.keys(CITY_COORDS)
+                .slice(i + 1)
+                .map((c2) => {
+                  const p1 = CITY_COORDS[c1];
+                  const p2 = CITY_COORDS[c2];
+                  const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
+                  if (dist < 220) {
+                    return (
+                      <line
+                        key={`${c1}-${c2}`}
+                        x1={p1.x}
+                        y1={p1.y}
+                        x2={p2.x}
+                        y2={p2.y}
+                        stroke="currentColor"
+                        className="text-border"
+                        strokeWidth="1"
+                      />
+                    );
+                  }
+                  return null;
+                }),
             )}
 
             {/* Active En-Route Paths */}
@@ -270,7 +334,7 @@ function TransitMap({ activeTrips }: { activeTrips: Trip[] }) {
             {/* City Nodes */}
             {Object.entries(CITY_COORDS).map(([name, pt]) => {
               const isActiveNode = activeTrips.some(
-                (t) => t.source === name || t.destination === name
+                (t) => t.source === name || t.destination === name,
               );
               return (
                 <g key={name} transform={`translate(${pt.x}, ${pt.y})`}>
@@ -280,7 +344,10 @@ function TransitMap({ activeTrips }: { activeTrips: Trip[] }) {
                       <circle r="5" className="fill-primary stroke-background stroke-2" />
                     </>
                   ) : (
-                    <circle r="3.5" className="fill-muted-foreground/60 stroke-background stroke-2" />
+                    <circle
+                      r="3.5"
+                      className="fill-muted-foreground/60 stroke-background stroke-2"
+                    />
                   )}
                   <text
                     y="-10"

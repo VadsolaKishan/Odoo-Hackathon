@@ -2,11 +2,16 @@ import { describe, it, expect, beforeAll } from "vitest";
 import request from "supertest";
 import app from "../../app";
 
+import { prisma } from "../../db/client";
+
 let token = "";
 let vehicleId = "";
 
 describe("Vehicles Feature", () => {
   beforeAll(async () => {
+    // Clean up GJ01AB1234 to avoid unique constraint conflicts
+    await prisma.vehicle.deleteMany({ where: { registration: "GJ01AB1234" } });
+
     // Get a token
     const res = await request(app).post("/api/auth/login").send({
       email: "test@example.com",

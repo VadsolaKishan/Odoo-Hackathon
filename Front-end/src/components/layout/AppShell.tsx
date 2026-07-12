@@ -7,7 +7,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="flex min-h-screen w-full bg-background">
-      <div className="hidden lg:block">
+      <div className="hidden lg:block sticky top-0 h-screen">
         <Sidebar />
       </div>
       <Sheet open={open} onOpenChange={setOpen}>

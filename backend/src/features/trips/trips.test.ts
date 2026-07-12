@@ -2,6 +2,8 @@ import { describe, it, expect, beforeAll } from "vitest";
 import request from "supertest";
 import app from "../../app";
 
+import { prisma } from "../../db/client";
+
 let token = "";
 let vehicleId = "";
 let driverId = "";
@@ -9,26 +11,39 @@ let tripId = "";
 
 describe("Trips Feature", () => {
   beforeAll(async () => {
-    // Get a token
-    const authRes = await request(app).post("/api/auth/login").send({
-      email: "test@example.com",
+    // Clean up test data to avoid unique constraint conflicts
+    await prisma.trip.deleteMany({ where: { vehicle: { registration: "TRIPTEST" } } });
+    await prisma.vehicle.deleteMany({ where: { registration: "TRIPTEST" } });
+    await prisma.driver.deleteMany({ where: { license: "TRIP123" } });
+
+    // Get Fleet Manager token (for setup)
+    const fmRes = await request(app).post("/api/auth/login").send({
+      email: "fleetmanager@gmail.com",
       password: "demo1234",
       role: "Fleet Manager"
     });
-    token = authRes.body.data.token;
+    const fmToken = fmRes.body.data.token;
 
-    // Create a vehicle
+    // Get Dispatcher token (for testing trip dispatch/lifecycle)
+    const dispRes = await request(app).post("/api/auth/login").send({
+      email: "dispatcher@gmail.com",
+      password: "demo1234",
+      role: "Dispatcher"
+    });
+    token = dispRes.body.data.token;
+
+    // Create a vehicle (using Fleet Manager token)
     const vehRes = await request(app)
       .post("/api/vehicles")
-      .set("Authorization", `Bearer ${token}`)
+      .set("Authorization", `Bearer ${fmToken}`)
       .send({ registration: "TRIPTEST", name: "T1", model: "T", type: "Truck", capacity: 8000, odometer: 0, cost: 0 });
     vehicleId = vehRes.body.data.id;
 
-    // Create a driver
+    // Create a driver (using Fleet Manager token)
     const drvRes = await request(app)
       .post("/api/drivers")
-      .set("Authorization", `Bearer ${token}`)
-      .send({ name: "D1", license: "TRIP123", category: "LMV", expiry: "2026-12-31", phone: "123", safetyScore: 100 });
+      .set("Authorization", `Bearer ${fmToken}`)
+      .send({ name: "D1", license: "TRIP123", category: "LMV", expiry: "2026-12-31", phone: "555-0101", safetyScore: 100 });
     driverId = drvRes.body.data.id;
   });
 
@@ -37,8 +52,8 @@ describe("Trips Feature", () => {
       .post("/api/trips")
       .set("Authorization", `Bearer ${token}`)
       .send({
-        source: "A",
-        destination: "B",
+        source: "Gandhinagar",
+        destination: "Ahmedabad",
         vehicleId,
         driverId,
         cargoWeight: 1000,

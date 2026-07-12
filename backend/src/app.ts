@@ -22,10 +22,10 @@ app.use("/api/auth", authRoutes);
 app.use("/api/vehicles", requireAuth, authorizeRole("Fleet"), vehiclesRoutes);
 app.use("/api/drivers", requireAuth, authorizeRole("Drivers"), driversRoutes);
 app.use("/api/trips", requireAuth, authorizeRole("Trips"), tripsRoutes);
-app.use("/api/maintenance", requireAuth, authorizeRole("Fleet"), maintenanceRoutes);
+app.use("/api/maintenance", requireAuth, authorizeRole("Maintenance"), maintenanceRoutes);
 app.use("/api/fuel-logs", requireAuth, authorizeRole("Fuel"), fuelLogsRoutes);
 app.use("/api/expenses", requireAuth, authorizeRole("Fuel"), expensesRoutes);
-app.use("/api/settings", requireAuth, authorizeRole("Fleet"), settingsRoutes);
+app.use("/api/settings", requireAuth, authorizeRole("Settings"), settingsRoutes);
 
 // Global Error Handler
 app.use(errorHandler);

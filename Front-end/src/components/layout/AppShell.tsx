@@ -5,10 +5,12 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+
   return (
     <div className="flex min-h-screen w-full bg-background">
-      <div className="hidden lg:block">
-        <Sidebar />
+      <div className="hidden lg:block sticky top-0 h-screen">
+        <Sidebar collapsed={collapsed} onToggleCollapse={() => setCollapsed((c) => !c)} />
       </div>
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="left" className="w-64 p-0 border-0 bg-sidebar text-sidebar-foreground">

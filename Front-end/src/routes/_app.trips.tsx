@@ -37,7 +37,7 @@ const tripSchema = z.object({
 type TripForm = z.infer<typeof tripSchema>;
 
 function TripsPage() {
-  const { vehicles, drivers, trips, createTrip, dispatchTrip, cancelTrip, completeTrip } = useStore();
+  const { vehicles, drivers, trips, createTrip, dispatchTrip, cancelTrip, completeTrip, distanceUnit } = useStore();
   const [openCreate, setOpenCreate] = useState(false);
   const [completing, setCompleting] = useState<string | null>(null);
   const [complete, setComplete] = useState({ finalOdometer: "", fuelUsed: "", notes: "" });
@@ -61,8 +61,8 @@ function TripsPage() {
       ? cargoWeight - selectedVehicle.capacity
       : 0;
 
-  const onCreate = (v: TripForm) => {
-    const res = createTrip(v);
+  const onCreate = async (v: TripForm) => {
+    const res = await createTrip(v);
     if (!res.ok) {
       toast.error(res.error);
       return;
@@ -79,19 +79,23 @@ function TripsPage() {
   const running = trips.filter((t) => t.status === "Dispatched");
   const finished = trips.filter((t) => t.status === "Completed" || t.status === "Cancelled");
 
-  const handleDispatch = (id: string) => {
-    const res = dispatchTrip(id);
+  const handleDispatch = async (id: string) => {
+    const res = await dispatchTrip(id);
     if (!res.ok) toast.error(res.error);
     else toast.success("Trip dispatched");
   };
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     if (!completing) return;
-    completeTrip(completing, {
+    const res = await completeTrip(completing, {
       finalOdometer: Number(complete.finalOdometer),
       fuelUsed: Number(complete.fuelUsed),
       notes: complete.notes,
     });
+    if (!res.ok) {
+      toast.error(res.error);
+      return;
+    }
     toast.success("Trip completed");
     setCompleting(null);
     setComplete({ finalOdometer: "", fuelUsed: "", notes: "" });
@@ -134,7 +138,7 @@ function TripsPage() {
                       {" · "}Driver: {driverById[t.driverId]?.name}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Cargo: {t.cargoWeight}kg · Distance: {t.distance}km
+                      Cargo: {t.cargoWeight}kg · Distance: {t.distance}{distanceUnit}
                     </p>
                     <p className="text-xs">ETA: {new Date(t.eta).toLocaleString()}</p>
                     <div className="flex gap-2 pt-2">
@@ -255,7 +259,7 @@ function TripsPage() {
               </Select>
             </Field>
             <Field label="Cargo Weight (kg)"><Input type="number" {...form.register("cargoWeight")} /></Field>
-            <Field label="Distance (km)"><Input type="number" {...form.register("distance")} /></Field>
+            <Field label={`Distance (${distanceUnit})`}><Input type="number" {...form.register("distance")} /></Field>
 
             {selectedVehicle && (
               <div
@@ -290,7 +294,7 @@ function TripsPage() {
         <DialogContent>
           <DialogHeader><DialogTitle>Complete Trip</DialogTitle></DialogHeader>
           <div className="grid gap-4">
-            <Field label="Final Odometer (km)">
+            <Field label={`Final Odometer (${distanceUnit})`}>
               <Input type="number" value={complete.finalOdometer} onChange={(e) => setComplete((c) => ({ ...c, finalOdometer: e.target.value }))} />
             </Field>
             <Field label="Fuel Used (litres)">

@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useStore } from "@/context/StoreContext";
 import { Check } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/ui/page-header";
@@ -39,9 +40,27 @@ const permStyle: Record<Perm, string> = {
 };
 
 function SettingsPage() {
+  const { settings, updateSettings } = useStore();
   const [dept, setDept] = useState("Northern Logistics Dept");
   const [currency, setCurrency] = useState("INR");
   const [unit, setUnit] = useState("km");
+
+  useEffect(() => {
+    if (settings) {
+      setDept(settings.departmentName);
+      setCurrency(settings.currency);
+      setUnit(settings.distanceUnit);
+    }
+  }, [settings]);
+
+  const handleSave = async () => {
+    const res = await updateSettings({ departmentName: dept, currency, distanceUnit: unit });
+    if (res.ok) {
+      toast.success("Settings saved");
+    } else {
+      toast.error(res.error || "Failed to save settings");
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -74,7 +93,7 @@ function SettingsPage() {
             </Select>
           </div>
           <div className="sm:col-span-3 flex justify-end">
-            <Button onClick={() => toast.success("Settings saved")}><Check className="mr-2 h-4 w-4" /> Save changes</Button>
+            <Button onClick={handleSave}><Check className="mr-2 h-4 w-4" /> Save changes</Button>
           </div>
         </CardContent>
       </Card>

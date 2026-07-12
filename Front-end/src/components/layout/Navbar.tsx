@@ -13,7 +13,7 @@ import { useNavigate } from "@tanstack/react-router";
 export function Navbar({ onMenu }: { onMenu?: () => void }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const initials = user?.name.split(" ").map((n) => n[0]).slice(0, 2).join("") ?? "U";
+  const initials = (user?.name || "User").split(" ").map((n) => n[0]).slice(0, 2).join("");
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-card/80 px-4 backdrop-blur sm:px-6">
       <Button variant="ghost" size="icon" className="lg:hidden" onClick={onMenu}>

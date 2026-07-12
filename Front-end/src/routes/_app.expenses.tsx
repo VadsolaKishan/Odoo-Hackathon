@@ -23,7 +23,7 @@ export const Route = createFileRoute("/_app/expenses")({
 });
 
 function ExpensesPage() {
-  const { vehicles, trips, fuelLogs, expenses, maintenance, addFuelLog, addExpense } = useStore();
+  const { vehicles, trips, fuelLogs, expenses, maintenance, addFuelLog, addExpense, currencySymbol } = useStore();
   const [openFuel, setOpenFuel] = useState(false);
   const [openExp, setOpenExp] = useState(false);
 
@@ -42,19 +42,20 @@ function ExpensesPage() {
   }, [fuelLogs, maintenance, expenses]);
 
   const vehicleById = Object.fromEntries(vehicles.map((v) => [v.id, v]));
+  const tripById = Object.fromEntries(trips.map((t) => [t.id, t]));
 
   return (
     <div className="space-y-6">
       <PageHeader title="Fuel & Expenses" description="Track fuel consumption and operational spend." />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard label="Fuel Cost" value={Math.round(totals.fuelCost)} suffix="₹" icon={Fuel} tint="primary" />
-        <KpiCard label="Maintenance" value={Math.round(totals.maintCost)} suffix="₹" icon={Wrench} tint="info" />
-        <KpiCard label="Other Expenses" value={Math.round(totals.otherCost)} suffix="₹" icon={IndianRupee} tint="muted" />
+        <KpiCard label="Fuel Cost" value={Math.round(totals.fuelCost)} suffix={currencySymbol} icon={Fuel} tint="primary" />
+        <KpiCard label="Maintenance" value={Math.round(totals.maintCost)} suffix={currencySymbol} icon={Wrench} tint="info" />
+        <KpiCard label="Other Expenses" value={Math.round(totals.otherCost)} suffix={currencySymbol} icon={IndianRupee} tint="muted" />
         <Card className="p-5 bg-gradient-to-br from-primary/15 to-primary/5 border-primary/30">
           <p className="text-xs font-semibold uppercase tracking-wide text-primary">Total Operational Cost</p>
           <p className="mt-2 text-3xl font-bold text-foreground tabular-nums">
-            ₹ {Math.round(totals.total).toLocaleString()}
+            {currencySymbol} {Math.round(totals.total).toLocaleString()}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">across fuel, maintenance and other spend</p>
         </Card>
@@ -77,7 +78,7 @@ function ExpensesPage() {
             <Table>
               <TableHeader><TableRow>
                 <TableHead>Vehicle</TableHead><TableHead>Date</TableHead>
-                <TableHead className="text-right">Litres</TableHead><TableHead className="text-right">₹/L</TableHead>
+                <TableHead className="text-right">Litres</TableHead><TableHead className="text-right">{currencySymbol}/L</TableHead>
                 <TableHead className="text-right">Total</TableHead>
               </TableRow></TableHeader>
               <TableBody>
@@ -87,7 +88,7 @@ function ExpensesPage() {
                     <TableCell>{f.date}</TableCell>
                     <TableCell className="text-right tabular-nums">{f.liters}</TableCell>
                     <TableCell className="text-right tabular-nums">{f.pricePerLiter}</TableCell>
-                    <TableCell className="text-right tabular-nums font-medium">₹ {(f.liters * f.pricePerLiter).toLocaleString()}</TableCell>
+                    <TableCell className="text-right tabular-nums font-medium">{currencySymbol} {(f.liters * f.pricePerLiter).toLocaleString()}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -108,12 +109,16 @@ function ExpensesPage() {
               <TableBody>
                 {expenses.map((e) => (
                   <TableRow key={e.id}>
-                    <TableCell className="font-mono text-xs">{e.tripId}</TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {e.tripId && tripById[e.tripId] 
+                        ? `${tripById[e.tripId].source} → ${tripById[e.tripId].destination}` 
+                        : "—"}
+                    </TableCell>
                     <TableCell className="font-mono text-xs">{vehicleById[e.vehicleId]?.registration}</TableCell>
                     <TableCell className="text-right tabular-nums">{e.toll}</TableCell>
                     <TableCell className="text-right tabular-nums">{e.repair}</TableCell>
                     <TableCell className="text-right tabular-nums">{e.misc}</TableCell>
-                    <TableCell className="text-right tabular-nums font-medium">₹ {(e.toll + e.repair + e.misc).toLocaleString()}</TableCell>
+                    <TableCell className="text-right tabular-nums font-medium">{currencySymbol} {(e.toll + e.repair + e.misc).toLocaleString()}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -126,9 +131,10 @@ function ExpensesPage() {
         <DialogContent>
           <DialogHeader><DialogTitle>New Fuel Log</DialogTitle></DialogHeader>
           <form
-            onSubmit={fuelForm.handleSubmit((v) => {
+            onSubmit={fuelForm.handleSubmit(async (v) => {
               if (!v.vehicleId) return toast.error("Select a vehicle");
-              addFuelLog({ ...v, liters: Number(v.liters), pricePerLiter: Number(v.pricePerLiter) });
+              const res = await addFuelLog({ ...v, liters: Number(v.liters), pricePerLiter: Number(v.pricePerLiter) });
+              if (!res.ok) { toast.error(res.error); return; }
               toast.success("Fuel log added");
               setOpenFuel(false);
               fuelForm.reset();
@@ -143,7 +149,7 @@ function ExpensesPage() {
             </F>
             <F label="Date"><Input type="date" {...fuelForm.register("date")} /></F>
             <F label="Litres"><Input type="number" {...fuelForm.register("liters")} /></F>
-            <F label="₹ per Litre" className="col-span-2"><Input type="number" {...fuelForm.register("pricePerLiter")} /></F>
+            <F label={`${currencySymbol} per Litre`} className="col-span-2"><Input type="number" {...fuelForm.register("pricePerLiter")} /></F>
             <DialogFooter className="col-span-2">
               <Button type="button" variant="outline" onClick={() => setOpenFuel(false)}>Cancel</Button>
               <Button type="submit">Save</Button>
@@ -156,11 +162,13 @@ function ExpensesPage() {
         <DialogContent>
           <DialogHeader><DialogTitle>New Expense</DialogTitle></DialogHeader>
           <form
-            onSubmit={expForm.handleSubmit((v) => {
+            onSubmit={expForm.handleSubmit(async (v) => {
               if (!v.vehicleId) return toast.error("Select a vehicle");
-              addExpense({
-                ...v, toll: Number(v.toll), repair: Number(v.repair), misc: Number(v.misc),
-              });
+              const payload: any = { ...v, toll: Number(v.toll), repair: Number(v.repair), misc: Number(v.misc) };
+              if (!payload.tripId) delete payload.tripId;
+              
+              const res = await addExpense(payload);
+              if (!res.ok) { toast.error(res.error); return; }
               toast.success("Expense added");
               setOpenExp(false);
               expForm.reset();
@@ -179,9 +187,9 @@ function ExpensesPage() {
                 <SelectContent>{vehicles.map((v) => <SelectItem key={v.id} value={v.id}>{v.registration}</SelectItem>)}</SelectContent>
               </Select>
             </F>
-            <F label="Toll (₹)"><Input type="number" {...expForm.register("toll")} /></F>
-            <F label="Repair (₹)"><Input type="number" {...expForm.register("repair")} /></F>
-            <F label="Misc (₹)" className="col-span-2"><Input type="number" {...expForm.register("misc")} /></F>
+            <F label={`Toll (${currencySymbol})`}><Input type="number" {...expForm.register("toll")} /></F>
+            <F label={`Repair (${currencySymbol})`}><Input type="number" {...expForm.register("repair")} /></F>
+            <F label={`Misc (${currencySymbol})`} className="col-span-2"><Input type="number" {...expForm.register("misc")} /></F>
             <DialogFooter className="col-span-2">
               <Button type="button" variant="outline" onClick={() => setOpenExp(false)}>Cancel</Button>
               <Button type="submit">Save</Button>

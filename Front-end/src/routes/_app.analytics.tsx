@@ -10,7 +10,6 @@ import {
   Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts";
 import { useStore } from "@/context/StoreContext";
-import { monthlyRevenue } from "@/data/mock";
 
 export const Route = createFileRoute("/_app/analytics")({
   head: () => ({ meta: [{ title: "Analytics — TransitOps" }] }),
@@ -20,16 +19,17 @@ export const Route = createFileRoute("/_app/analytics")({
 const COLORS = ["#F59E0B", "#3B82F6", "#10B981", "#EF4444", "#8B5CF6"];
 
 function AnalyticsPage() {
-  const { vehicles, fuelLogs, maintenance } = useStore();
+  const { vehicles, fuelLogs, maintenance, expenses, trips, currencySymbol, distanceUnit } = useStore();
   const active = vehicles.filter((v) => v.status !== "Retired").length;
   const util = active ? Math.round(((active - vehicles.filter((v) => v.status === "Available").length) / active) * 100) : 0;
 
   const totalLiters = fuelLogs.reduce((s, f) => s + f.liters, 0);
-  const totalDistance = 42000; // mock
+  const totalDistance = trips.filter(t => t.status === "Completed").reduce((s, t) => s + (t.distance || 0), 0);
   const efficiency = totalLiters ? Math.round((totalDistance / totalLiters) * 10) / 10 : 0;
 
   const opCost = fuelLogs.reduce((s, f) => s + f.liters * f.pricePerLiter, 0) + maintenance.reduce((s, m) => s + m.cost, 0);
-  const roi = 156;
+  const totalRevenue = trips.reduce((s, t) => s + ((t.distance || 0) * 50), 0); // Simulated revenue at 50 per km
+  const roi = opCost > 0 ? Math.round(((totalRevenue - opCost) / opCost) * 100) : 0;
 
   const statusData = ["Available", "On Trip", "In Shop", "Retired"].map((s, i) => ({
     name: s,
@@ -41,10 +41,28 @@ function AnalyticsPage() {
     .slice(0, 8)
     .map((v) => ({ name: v.registration, cost: Math.round(v.cost / 1000) }));
 
-  const fuelData = monthlyRevenue.map((m, i) => ({
-    month: m.month,
-    litres: 2000 + Math.round(Math.sin(i) * 400) + i * 60,
-  }));
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const monthlyData = months.map(m => ({ month: m, revenue: 0, cost: 0, litres: 0 }));
+
+  fuelLogs.forEach(f => {
+    const m = new Date(f.date).getMonth();
+    if (monthlyData[m]) {
+      monthlyData[m].cost += f.liters * f.pricePerLiter;
+      monthlyData[m].litres += f.liters;
+    }
+  });
+  maintenance.forEach(m => {
+    const idx = new Date(m.date).getMonth();
+    if (monthlyData[idx]) monthlyData[idx].cost += m.cost;
+  });
+  expenses.forEach(e => {
+    const idx = new Date(e.date).getMonth();
+    if (monthlyData[idx]) monthlyData[idx].cost += e.toll + e.repair + e.misc;
+  });
+  trips.forEach(t => {
+    const idx = new Date(t.createdAt).getMonth();
+    if (monthlyData[idx]) monthlyData[idx].revenue += (t.distance || 0) * 50; // Mock revenue logic
+  });
 
   return (
     <div className="space-y-6">
@@ -60,9 +78,9 @@ function AnalyticsPage() {
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard label="Fuel Efficiency" value={efficiency} suffix="km/L" icon={Fuel} tint="primary" />
+        <KpiCard label="Fuel Efficiency" value={efficiency} suffix={`${distanceUnit}/L`} icon={Fuel} tint="primary" />
         <KpiCard label="Fleet Utilization" value={util} suffix="%" icon={Percent} tint="success" />
-        <KpiCard label="Operational Cost" value={Math.round(opCost / 1000)} suffix="k ₹" icon={IndianRupee} tint="info" />
+        <KpiCard label="Operational Cost" value={Math.round(opCost / 1000)} suffix={`k ${currencySymbol}`} icon={IndianRupee} tint="info" />
         <KpiCard label="Vehicle ROI" value={roi} suffix="%" icon={TrendingUp} tint="success" />
       </div>
 
@@ -72,7 +90,7 @@ function AnalyticsPage() {
           <CardContent>
             <div className="h-72">
               <ResponsiveContainer>
-                <BarChart data={monthlyRevenue}>
+                <BarChart data={monthlyData}>
                   <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                   <XAxis dataKey="month" fontSize={12} />
                   <YAxis fontSize={12} />
@@ -87,7 +105,7 @@ function AnalyticsPage() {
         </Card>
 
         <Card>
-          <CardHeader><CardTitle>Vehicle Costs (₹k)</CardTitle></CardHeader>
+          <CardHeader><CardTitle>Vehicle Costs ({currencySymbol}k)</CardTitle></CardHeader>
           <CardContent>
             <div className="h-72">
               <ResponsiveContainer>
@@ -125,7 +143,7 @@ function AnalyticsPage() {
           <CardContent>
             <div className="h-72">
               <ResponsiveContainer>
-                <LineChart data={fuelData}>
+                <LineChart data={monthlyData}>
                   <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                   <XAxis dataKey="month" fontSize={12} />
                   <YAxis fontSize={12} />

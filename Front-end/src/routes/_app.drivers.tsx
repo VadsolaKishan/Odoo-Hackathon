@@ -69,8 +69,12 @@ function DriversPage() {
     },
   });
 
-  const onSubmit = (v: FormValues) => {
-    addDriver(v);
+  const onSubmit = async (v: FormValues) => {
+    const res = await addDriver(v);
+    if (!res.ok) {
+      toast.error(res.error);
+      return;
+    }
     toast.success(`${v.name} added to drivers`);
     setOpen(false);
     form.reset();

@@ -37,7 +37,7 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 function FleetPage() {
-  const { vehicles, addVehicle, updateVehicle } = useStore();
+  const { vehicles, addVehicle, updateVehicle, currencySymbol, distanceUnit } = useStore();
   const [q, setQ] = useState("");
   const [type, setType] = useState("all");
   const [status, setStatus] = useState("all");
@@ -80,12 +80,12 @@ function FleetPage() {
     setOpen(true);
   };
 
-  const onSubmit = (v: FormValues) => {
+  const onSubmit = async (v: FormValues) => {
     if (editing) {
-      updateVehicle(editing.id, v);
+      await updateVehicle(editing.id, v);
       toast.success(`Vehicle ${v.registration} updated`);
     } else {
-      const res = addVehicle(v);
+      const res = await addVehicle(v);
       if (!res.ok) {
         form.setError("registration", { message: res.error });
         return;
@@ -145,7 +145,7 @@ function FleetPage() {
                   <TableHead>Type</TableHead>
                   <TableHead className="text-right">Capacity</TableHead>
                   <TableHead className="text-right">Odometer</TableHead>
-                  <TableHead className="text-right">Cost (₹)</TableHead>
+                  <TableHead className="text-right">Cost ({currencySymbol})</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead />
                 </TableRow>
@@ -157,7 +157,7 @@ function FleetPage() {
                     <TableCell>{v.name}</TableCell>
                     <TableCell className="text-muted-foreground">{v.type}</TableCell>
                     <TableCell className="text-right tabular-nums">{v.capacity.toLocaleString()} kg</TableCell>
-                    <TableCell className="text-right tabular-nums">{v.odometer.toLocaleString()} km</TableCell>
+                    <TableCell className="text-right tabular-nums">{v.odometer.toLocaleString()} {distanceUnit}</TableCell>
                     <TableCell className="text-right tabular-nums">{v.cost.toLocaleString()}</TableCell>
                     <TableCell><StatusBadge status={v.status} /></TableCell>
                     <TableCell className="text-right">
@@ -219,8 +219,8 @@ function FleetPage() {
               </Select>
             </Field>
             <Field label="Capacity (kg)"><Input type="number" {...form.register("capacity")} disabled={retired} /></Field>
-            <Field label="Odometer (km)"><Input type="number" {...form.register("odometer")} disabled={retired} /></Field>
-            <Field label="Purchase Cost (₹)" className="col-span-2">
+            <Field label={`Odometer (${distanceUnit})`}><Input type="number" {...form.register("odometer")} disabled={retired} /></Field>
+            <Field label={`Purchase Cost (${currencySymbol})`} className="col-span-2">
               <Input type="number" {...form.register("cost")} disabled={retired} />
             </Field>
             <DialogFooter className="col-span-2">

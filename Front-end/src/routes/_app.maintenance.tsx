@@ -34,7 +34,7 @@ const schema = z.object({
 type F = z.infer<typeof schema>;
 
 function MaintenancePage() {
-  const { vehicles, maintenance, addMaintenance, updateMaintenance } = useStore();
+  const { vehicles, maintenance, addMaintenance, updateMaintenance, currencySymbol } = useStore();
   const [open, setOpen] = useState(false);
   const form = useForm<F>({
     resolver: zodResolver(schema),
@@ -44,8 +44,12 @@ function MaintenancePage() {
     },
   });
 
-  const onSubmit = (v: F) => {
-    addMaintenance(v);
+  const onSubmit = async (v: F) => {
+    const res = await addMaintenance(v);
+    if (!res.ok) {
+      toast.error(res.error);
+      return;
+    }
     toast.success("Maintenance record added");
     setOpen(false);
     form.reset();
@@ -69,7 +73,7 @@ function MaintenancePage() {
                 <TableHead>Vehicle</TableHead>
                 <TableHead>Service</TableHead>
                 <TableHead>Date</TableHead>
-                <TableHead className="text-right">Cost (₹)</TableHead>
+                <TableHead className="text-right">Cost ({currencySymbol})</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead />
               </TableRow>
@@ -84,7 +88,7 @@ function MaintenancePage() {
                   <TableCell><StatusBadge status={m.status} /></TableCell>
                   <TableCell className="text-right">
                     {m.status !== "Completed" && (
-                      <Button size="sm" variant="outline" onClick={() => { updateMaintenance(m.id, { status: "Completed" }); toast.success("Marked completed"); }}>
+                      <Button size="sm" variant="outline" onClick={async () => { const res = await updateMaintenance(m.id, { status: "Completed" }); if (res.ok) toast.success("Marked completed"); else toast.error(res.error); }}>
                         Mark Completed
                       </Button>
                     )}
@@ -111,7 +115,7 @@ function MaintenancePage() {
               </Select>
             </Field>
             <Field label="Service Type"><Input {...form.register("serviceType")} /></Field>
-            <Field label="Cost (₹)"><Input type="number" {...form.register("cost")} /></Field>
+            <Field label={`Cost (${currencySymbol})`}><Input type="number" {...form.register("cost")} /></Field>
             <Field label="Date"><Input type="date" {...form.register("date")} /></Field>
             <Field label="Status">
               <Select defaultValue={form.getValues("status")} onValueChange={(v) => form.setValue("status", v as MaintenanceStatus)}>

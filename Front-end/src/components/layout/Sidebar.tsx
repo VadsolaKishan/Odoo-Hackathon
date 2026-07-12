@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, Truck, Users, Route as RouteIcon, Wrench,
-  Fuel, BarChart3, Settings, Bus,
+  Fuel, BarChart3, Settings, Navigation,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
@@ -42,7 +42,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       {/* Logo */}
       <div className="flex items-center gap-3 px-5 py-5 border-b border-sidebar-border">
         <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground shadow-lg">
-          <Bus className="h-5 w-5" />
+          <Navigation className="h-5 w-5 fill-primary-foreground/10" />
         </div>
         <div className="min-w-0">
           <p className="truncate text-sm font-bold tracking-tight text-sidebar-foreground">

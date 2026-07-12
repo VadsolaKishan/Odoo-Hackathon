@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Bus, Lock, Mail, ShieldCheck, TrendingUp, Users, Wrench, AlertCircle } from "lucide-react";
+import { Navigation, Truck, Lock, Mail, ShieldCheck, TrendingUp, Users, Wrench, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,8 +31,8 @@ const schema = z.object({
 });
 type FormValues = z.infer<typeof schema>;
 
-const roleIcons: { role: UserRole; icon: typeof Bus }[] = [
-  { role: "Fleet Manager", icon: Bus },
+const roleIcons: { role: UserRole; icon: typeof Navigation }[] = [
+  { role: "Fleet Manager", icon: Truck },
   { role: "Dispatcher", icon: Users },
   { role: "Safety Officer", icon: ShieldCheck },
   { role: "Financial Analyst", icon: TrendingUp },
@@ -72,7 +72,7 @@ function AuthPage() {
         <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-secondary/20 blur-3xl" />
         <div className="relative flex items-center gap-3">
           <div className="grid h-11 w-11 place-items-center rounded-xl bg-primary text-primary-foreground">
-            <Bus className="h-6 w-6" />
+            <Navigation className="h-6 w-6 fill-primary-foreground/10" />
           </div>
           <div>
             <p className="text-lg font-bold">TransitOps</p>
@@ -105,7 +105,7 @@ function AuthPage() {
         <div className="w-full max-w-md">
           <div className="mb-8 lg:hidden flex items-center gap-2">
             <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary text-primary-foreground">
-              <Bus className="h-5 w-5" />
+              <Navigation className="h-5 w-5 fill-primary-foreground/10" />
             </div>
             <span className="text-lg font-bold">TransitOps</span>
           </div>

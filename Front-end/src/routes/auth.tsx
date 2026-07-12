@@ -50,7 +50,7 @@ function AuthPage() {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { email: "", password: "", role: "Fleet Manager", remember: true },
+    defaultValues: { email: "manager@transitops.io", password: "demo1234", role: "Fleet Manager", remember: true },
   });
 
   const onSubmit = async (values: FormValues) => {
@@ -172,6 +172,9 @@ function AuthPage() {
             <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
               Sign in
             </Button>
+            <p className="text-center text-xs text-muted-foreground">
+              Demo credentials: any email · password <span className="font-mono font-semibold">demo1234</span>
+            </p>
           </form>
         </div>
       </div>

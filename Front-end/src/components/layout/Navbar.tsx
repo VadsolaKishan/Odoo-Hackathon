@@ -1,4 +1,4 @@
-import { Bell, LogOut, Menu, Search, User } from "lucide-react";
+import { Bell, LogOut, Menu, Search, User, Sun, Moon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,11 +9,30 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 
 export function Navbar({ onMenu }: { onMenu?: () => void }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const initials = (user?.name || "User").split(" ").map((n) => n[0]).slice(0, 2).join("");
+  const initials = user?.name.split(" ").map((n) => n[0]).slice(0, 2).join("") ?? "U";
+
+  const [theme, setTheme] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("transitops.theme") || "dark";
+    }
+    return "dark";
+  });
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === "dark") {
+      root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
+    }
+    localStorage.setItem("transitops.theme", theme);
+  }, [theme]);
+
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-card/80 px-4 backdrop-blur sm:px-6">
       <Button variant="ghost" size="icon" className="lg:hidden" onClick={onMenu}>
@@ -24,6 +43,9 @@ export function Navbar({ onMenu }: { onMenu?: () => void }) {
         <Input placeholder="Search vehicles, drivers, trips…" className="pl-9" />
       </div>
       <div className="flex shrink-0 items-center gap-2">
+        <Button variant="ghost" size="icon" onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}>
+          {theme === "dark" ? <Sun className="h-5 w-5 text-amber-500" /> : <Moon className="h-5 w-5 text-blue-500" />}
+        </Button>
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />
           <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary" />

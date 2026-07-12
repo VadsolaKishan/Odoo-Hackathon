@@ -148,6 +148,147 @@ function Dashboard() {
           </CardContent>
         </Card>
       </div>
+
+      <TransitMap activeTrips={trips.filter((t) => t.status === "Dispatched")} />
     </div>
+  );
+}
+
+const CITY_COORDS: Record<string, { x: number; y: number }> = {
+  Delhi: { x: 260, y: 90 },
+  Jaipur: { x: 210, y: 140 },
+  Ahmedabad: { x: 150, y: 240 },
+  Surat: { x: 155, y: 290 },
+  Mumbai: { x: 160, y: 350 },
+  Pune: { x: 185, y: 380 },
+  Bangalore: { x: 260, y: 490 },
+  Chennai: { x: 310, y: 490 },
+  Hyderabad: { x: 280, y: 390 },
+  Kolkata: { x: 470, y: 240 },
+};
+
+interface Trip {
+  id: string;
+  source: string;
+  destination: string;
+  vehicleId: string;
+  driverId: string;
+  cargoWeight: number;
+  distance: number;
+  status: "Draft" | "Dispatched" | "Completed" | "Cancelled";
+  eta: string;
+}
+
+function TransitMap({ activeTrips }: { activeTrips: Trip[] }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Activity className="h-5 w-5 text-primary animate-pulse" />
+          Live Logistics Operations Network
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="relative overflow-hidden rounded-lg border bg-card p-4 min-h-[400px] flex items-center justify-center">
+          <svg className="w-full max-w-[600px] aspect-[4/3] stroke-slate-500/10 fill-none" viewBox="0 0 600 550">
+            {/* Background Grid Lines */}
+            <g className="stroke-slate-500/[0.04] stroke-[0.5]">
+              {Array.from({ length: 12 }, (_, i) => (
+                <line key={`x-${i}`} x1={i * 50} y1={0} x2={i * 50} y2={550} />
+              ))}
+              {Array.from({ length: 11 }, (_, i) => (
+                <line key={`y-${i}`} x1={0} y1={i * 50} x2={600} y2={i * 50} />
+              ))}
+            </g>
+
+            {/* Static Connection Lines */}
+            {Object.keys(CITY_COORDS).map((c1, i) =>
+              Object.keys(CITY_COORDS).slice(i + 1).map((c2) => {
+                const p1 = CITY_COORDS[c1];
+                const p2 = CITY_COORDS[c2];
+                const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
+                if (dist < 220) {
+                  return (
+                    <line
+                      key={`${c1}-${c2}`}
+                      x1={p1.x}
+                      y1={p1.y}
+                      x2={p2.x}
+                      y2={p2.y}
+                      stroke="currentColor"
+                      className="text-border"
+                      strokeWidth="1"
+                    />
+                  );
+                }
+                return null;
+              })
+            )}
+
+            {/* Active En-Route Paths */}
+            {activeTrips.map((trip) => {
+              const p1 = CITY_COORDS[trip.source];
+              const p2 = CITY_COORDS[trip.destination];
+              if (!p1 || !p2) return null;
+              return (
+                <g key={trip.id}>
+                  <line
+                    x1={p1.x}
+                    y1={p1.y}
+                    x2={p2.x}
+                    y2={p2.y}
+                    stroke="var(--color-primary)"
+                    strokeWidth="2.5"
+                    className="opacity-30 blur-[1px]"
+                  />
+                  <line
+                    x1={p1.x}
+                    y1={p1.y}
+                    x2={p2.x}
+                    y2={p2.y}
+                    stroke="var(--color-primary)"
+                    strokeWidth="1.5"
+                    strokeDasharray="5 3"
+                  />
+                  <circle r="4" fill="var(--color-primary)">
+                    <animateMotion
+                      dur="15s"
+                      repeatCount="indefinite"
+                      path={`M ${p1.x} ${p1.y} L ${p2.x} ${p2.y}`}
+                    />
+                  </circle>
+                </g>
+              );
+            })}
+
+            {/* City Nodes */}
+            {Object.entries(CITY_COORDS).map(([name, pt]) => {
+              const isActiveNode = activeTrips.some(
+                (t) => t.source === name || t.destination === name
+              );
+              return (
+                <g key={name} transform={`translate(${pt.x}, ${pt.y})`}>
+                  {isActiveNode ? (
+                    <>
+                      <circle r="10" className="fill-primary/20 stroke-primary animate-ping" />
+                      <circle r="5" className="fill-primary stroke-background stroke-2" />
+                    </>
+                  ) : (
+                    <circle r="3.5" className="fill-muted-foreground/60 stroke-background stroke-2" />
+                  )}
+                  <text
+                    y="-10"
+                    textAnchor="middle"
+                    className="text-[9px] font-semibold fill-foreground/80 stroke-background stroke-[2.5] paint-order-stroke pointer-events-none"
+                  >
+                    {name}
+                  </text>
+                </g>
+              );
+            })}
+          </svg>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

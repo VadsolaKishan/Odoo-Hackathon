@@ -34,31 +34,53 @@ export function Navbar({ onMenu }: { onMenu?: () => void }) {
   }, [theme]);
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-card/80 px-4 backdrop-blur sm:px-6">
-      <Button variant="ghost" size="icon" className="lg:hidden" onClick={onMenu}>
-        <Menu className="h-5 w-5" />
-      </Button>
-      <div className="relative min-w-0 flex-1 max-w-md">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input placeholder="Search vehicles, drivers, trips…" className="pl-9" />
-      </div>
-      <div className="flex shrink-0 items-center gap-2">
-        <Button variant="ghost" size="icon" onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}>
-          {theme === "dark" ? <Sun className="h-5 w-5 text-amber-500" /> : <Moon className="h-5 w-5 text-blue-500" />}
+    <header className="navbar-header">
+      {/* Left section: hamburger + search */}
+      <div className="navbar-left">
+        <Button variant="ghost" size="icon" className="navbar-menu-btn lg:hidden" onClick={onMenu}>
+          <Menu className="h-5 w-5" />
         </Button>
+        <div className="navbar-search">
+          <Search className="navbar-search-icon" />
+          <Input placeholder="Search vehicles, drivers, trips…" className="navbar-search-input" />
+        </div>
+      </div>
+
+      {/* Right section: actions + user */}
+      <div className="navbar-right">
+        {/* Theme toggle */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="navbar-action-btn"
+          onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
+        >
+          {theme === "dark" ? <Sun className="h-[18px] w-[18px] text-amber-400" /> : <Moon className="h-[18px] w-[18px] text-blue-400" />}
+        </Button>
+
+        {/* Notifications */}
+        <Button variant="ghost" size="icon" className="navbar-action-btn navbar-notification-btn">
+          <Bell className="h-[18px] w-[18px]" />
+          <span className="navbar-notification-dot" />
+        </Button>
+
+        {/* Divider */}
+        <div className="navbar-divider" />
+
+        {/* User profile dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-2 rounded-full px-1 py-1 pr-3 hover:bg-muted transition-colors">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
+            <button className="navbar-user-trigger">
+              <Avatar className="h-9 w-9 navbar-avatar">
+                <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
                   {initials}
                 </AvatarFallback>
               </Avatar>
-              <div className="hidden text-left sm:block">
-                <p className="text-xs font-semibold leading-tight">{user?.name}</p>
-                <p className="text-[11px] leading-tight text-muted-foreground">{user?.email}</p>
+              <div className="navbar-user-info hidden sm:block">
+                <p className="navbar-user-name">{user?.name}</p>
+                <p className="navbar-user-email">{user?.email}</p>
               </div>
-              <Badge variant="secondary" className="hidden md:inline-flex">{user?.role}</Badge>
+              <Badge variant="secondary" className="navbar-role-badge hidden md:inline-flex">{user?.role}</Badge>
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">

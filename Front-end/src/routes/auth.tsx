@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Navigation, Truck, Lock, Mail, ShieldCheck, TrendingUp, Users, Wrench, AlertCircle } from "lucide-react";
+import { Truck, Lock, Mail, ShieldCheck, TrendingUp, Users, Wrench, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -70,13 +70,11 @@ function AuthPage() {
       <div className="relative hidden overflow-hidden bg-sidebar text-sidebar-foreground lg:flex lg:flex-col lg:justify-between p-10">
         <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-primary/20 blur-3xl" />
         <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-secondary/20 blur-3xl" />
-        <div className="relative flex items-center gap-3">
-          <div className="grid h-11 w-11 place-items-center rounded-xl bg-primary text-primary-foreground">
-            <Navigation className="h-6 w-6 fill-primary-foreground/10" />
-          </div>
+        <div className="relative flex items-center gap-2">
+          <img src="/favicon.png" alt="TransitOps Logo" className="h-18 w-18 shrink-0 rounded-xl object-contain" />
           <div>
-            <p className="text-lg font-bold">TransitOps</p>
-            <p className="text-xs text-sidebar-foreground/60">Smart Transport Operations Platform</p>
+            <p className="text-2xl font-bold">TransitOps</p>
+            <p className="text-sm text-sidebar-foreground/60">Smart Transport Operations Platform</p>
           </div>
         </div>
         <div className="relative max-w-md">
@@ -104,9 +102,7 @@ function AuthPage() {
       <div className="flex items-center justify-center p-6 sm:p-10">
         <div className="w-full max-w-md">
           <div className="mb-8 lg:hidden flex items-center gap-2">
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary text-primary-foreground">
-              <Navigation className="h-5 w-5 fill-primary-foreground/10" />
-            </div>
+            <img src="/favicon.png" alt="TransitOps Logo" className="h-10 w-10 shrink-0 rounded-xl object-contain" />
             <span className="text-lg font-bold">TransitOps</span>
           </div>
           <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>

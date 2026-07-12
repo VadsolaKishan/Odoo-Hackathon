@@ -108,7 +108,13 @@ function Dashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {trips.slice(0, 8).map((t) => (
+                  {trips.filter((t) => {
+                    const v = vehicleById[t.vehicleId];
+                    if (!v) return false;
+                    const matchType = typeFilter === "all" || v.type === typeFilter;
+                    const matchStatus = statusFilter === "all" || v.status === statusFilter;
+                    return matchType && matchStatus;
+                  }).slice(0, 8).map((t) => (
                     <TableRow key={t.id}>
                       <TableCell className="font-mono text-xs">{t.id}</TableCell>
                       <TableCell>{vehicleById[t.vehicleId]?.registration ?? "—"}</TableCell>
@@ -124,7 +130,7 @@ function Dashboard() {
               </Table>
             </div>
             <p className="mt-3 text-xs text-muted-foreground">
-              Filters applied to {filteredVehicles.length} vehicles.
+              Showing recent trips for {filteredVehicles.length} matching vehicles.
             </p>
           </CardContent>
         </Card>

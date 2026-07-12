@@ -104,21 +104,27 @@ function ExpensesPage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard
           label="Fuel Cost"
-          value={`${currencySymbol}${Math.round(totals.fuelCost / 1000)}k`}
+          value={Math.round(totals.fuelCost / 1000)}
+          prefix={currencySymbol}
+          suffix="k"
           icon={Fuel}
           tint="primary"
           delta={`${fuelLogs.length} log entries`}
         />
         <KpiCard
           label="Maintenance"
-          value={`${currencySymbol}${Math.round(totals.maintCost / 1000)}k`}
+          value={Math.round(totals.maintCost / 1000)}
+          prefix={currencySymbol}
+          suffix="k"
           icon={Wrench}
           tint="info"
           delta={`${maintenance.length} records`}
         />
         <KpiCard
           label="Other Expenses"
-          value={`${currencySymbol}${Math.round(totals.otherCost / 1000)}k`}
+          value={Math.round(totals.otherCost / 1000)}
+          prefix={currencySymbol}
+          suffix="k"
           icon={IndianRupee}
           tint="muted"
           delta="toll + repair + misc"

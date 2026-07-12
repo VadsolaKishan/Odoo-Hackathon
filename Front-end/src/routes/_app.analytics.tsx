@@ -140,7 +140,7 @@ function AnalyticsPage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard label="Fleet Utilization" value={utilization} suffix="%" icon={Percent} tint="primary" delta={`${available} available`} />
         <KpiCard label="Fuel Efficiency" value={efficiency} suffix={` ${distanceUnit}/L`} icon={Fuel} tint="success" delta={`${totalLitres.toLocaleString("en-IN")} L total`} />
-        <KpiCard label="Operational Cost" value={`${currencySymbol}${Math.round(opCost / 1000)}k`} icon={DollarSign} tint="info" delta="fuel + maint + other" />
+        <KpiCard label="Operational Cost" value={Math.round(opCost / 1000)} prefix={currencySymbol} suffix="k" icon={DollarSign} tint="info" delta="fuel + maint + other" />
         <KpiCard label="Vehicle ROI" value={roi} suffix="%" icon={TrendingUp} tint={roi >= 40 ? "success" : "primary"} delta={`${currencySymbol}${Math.round(totalRevenue / 1000)}k revenue`} />
       </div>
 

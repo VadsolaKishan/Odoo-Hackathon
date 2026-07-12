@@ -45,6 +45,8 @@ function MaintenancePage() {
   const { can } = usePermission();
   const [open, setOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [startingId, setStartingId] = useState<string | null>(null);
+  const [completingId, setCompletingId] = useState<string | null>(null);
 
   const canManage = can("maintenance", "manage");
 
@@ -189,10 +191,14 @@ function MaintenancePage() {
                                     variant="outline"
                                     className="h-7 text-xs"
                                     onClick={async () => {
+                                      setStartingId(m.id);
                                       const res = await updateMaintenance(m.id, { status: "In Progress" });
+                                      setStartingId(null);
                                       if (res.ok) toast.success("Status → In Progress");
                                       else toast.error(res.error);
                                     }}
+                                    isLoading={startingId === m.id}
+                                    disabled={startingId !== null || completingId !== null}
                                   >
                                     Start
                                   </Button>
@@ -201,10 +207,14 @@ function MaintenancePage() {
                                   size="sm"
                                   className="h-7 text-xs"
                                   onClick={async () => {
+                                    setCompletingId(m.id);
                                     const res = await updateMaintenance(m.id, { status: "Completed" });
+                                    setCompletingId(null);
                                     if (res.ok) toast.success("Completed · Vehicle set Available");
                                     else toast.error(res.error);
                                   }}
+                                  isLoading={completingId === m.id}
+                                  disabled={startingId !== null || completingId !== null}
                                 >
                                   <CheckCircle2 className="mr-1 h-3.5 w-3.5" />
                                   Complete
@@ -282,7 +292,7 @@ function MaintenancePage() {
             </div>
             <DialogFooter className="col-span-2 pt-1">
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-              <Button type="submit">Save Record</Button>
+              <Button type="submit" isLoading={form.formState.isSubmitting}>Save Record</Button>
             </DialogFooter>
           </form>
         </DialogContent>

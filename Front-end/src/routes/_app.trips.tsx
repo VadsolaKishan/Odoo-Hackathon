@@ -60,6 +60,9 @@ export default function TripsPage() {
 
   const [completing, setCompleting] = useState<string | null>(null);
   const [completeForm, setCompleteForm] = useState({ finalOdometer: "", fuelUsed: "", notes: "" });
+  const [isSubmittingComplete, setIsSubmittingComplete] = useState(false);
+  const [dispatchingId, setDispatchingId] = useState<string | null>(null);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<typeof STATUS_FILTERS[number]>("All");
 
@@ -128,19 +131,24 @@ export default function TripsPage() {
   };
 
   const handleDispatch = async (id: string) => {
+    setDispatchingId(id);
     const res = await dispatchTrip(id);
+    setDispatchingId(null);
     if (!res.ok) toast.error(res.error);
     else toast.success("Trip dispatched successfully");
   };
 
   const handleCancel = async (id: string) => {
+    setCancellingId(id);
     const res = await cancelTrip(id);
+    setCancellingId(null);
     if (!res.ok) toast.error(res.error);
     else toast.info("Trip cancelled");
   };
 
   const handleComplete = async () => {
     if (!completing) return;
+    setIsSubmittingComplete(true);
     const res = await completeTrip(completing, {
       finalOdometer: Number(completeForm.finalOdometer),
       fuelUsed:      Number(completeForm.fuelUsed),
@@ -148,11 +156,13 @@ export default function TripsPage() {
     });
     if (!res.ok) {
       toast.error(res.error || "Failed to complete trip");
+      setIsSubmittingComplete(false);
       return;
     }
     toast.success("Trip marked as completed");
     setCompleting(null);
     setCompleteForm({ finalOdometer: "", fuelUsed: "", notes: "" });
+    setIsSubmittingComplete(false);
   };
 
   return (
@@ -370,6 +380,7 @@ export default function TripsPage() {
                       type="submit"
                       className="flex-1"
                       disabled={overCapacity > 0}
+                      isLoading={form.formState.isSubmitting}
                     >
                       Create &amp; Dispatch
                     </Button>
@@ -445,6 +456,8 @@ export default function TripsPage() {
                       driver={driverById[trip.driverId]}
                       canDispatch={isDispatcher}
                       distanceUnit={distanceUnit}
+                      isDispatching={dispatchingId === trip.id}
+                      isCancelling={cancellingId === trip.id}
                       onDispatch={() => handleDispatch(trip.id)}
                       onCancel={() => handleCancel(trip.id)}
                       onComplete={() => setCompleting(trip.id)}
@@ -501,6 +514,7 @@ export default function TripsPage() {
             <Button
               onClick={handleComplete}
               disabled={!completeForm.finalOdometer || !completeForm.fuelUsed}
+              isLoading={isSubmittingComplete}
             >
               Mark Completed
             </Button>
@@ -518,12 +532,14 @@ interface TripCardProps {
   driver?: { name: string } | undefined;
   canDispatch: boolean;
   distanceUnit: string;
+  isDispatching: boolean;
+  isCancelling: boolean;
   onDispatch: () => void;
   onCancel: () => void;
   onComplete: () => void;
 }
 
-function TripCard({ trip, vehicle, driver, canDispatch, distanceUnit, onDispatch, onCancel, onComplete }: TripCardProps) {
+function TripCard({ trip, vehicle, driver, canDispatch, distanceUnit, isDispatching, isCancelling, onDispatch, onCancel, onComplete }: TripCardProps) {
   const etaDate = trip.eta ? new Date(trip.eta) : null;
   const now = new Date();
   const diffMin = etaDate ? Math.round((etaDate.getTime() - now.getTime()) / 60000) : 0;
@@ -579,21 +595,21 @@ function TripCard({ trip, vehicle, driver, canDispatch, distanceUnit, onDispatch
           <div className="flex gap-1.5 justify-end mt-2">
             {trip.status === "Draft" && (
               <>
-                <Button size="sm" className="h-7 text-xs px-3" onClick={onDispatch}>
+                <Button size="sm" className="h-7 text-xs px-3" onClick={onDispatch} isLoading={isDispatching} disabled={isDispatching || isCancelling}>
                   Dispatch
                 </Button>
-                <Button size="sm" variant="ghost" className="h-7 text-xs px-2" onClick={onCancel}>
+                <Button size="sm" variant="ghost" className="h-7 text-xs px-2" onClick={onCancel} isLoading={isCancelling} disabled={isDispatching || isCancelling}>
                   Cancel
                 </Button>
               </>
             )}
             {trip.status === "Dispatched" && (
               <>
-                <Button size="sm" className="h-7 text-xs px-3" onClick={onComplete}>
+                <Button size="sm" className="h-7 text-xs px-3" onClick={onComplete} disabled={isDispatching || isCancelling}>
                   <CheckCircle2 className="mr-1 h-3.5 w-3.5" />
                   Complete
                 </Button>
-                <Button size="sm" variant="ghost" className="h-7 text-xs px-2" onClick={onCancel}>
+                <Button size="sm" variant="ghost" className="h-7 text-xs px-2" onClick={onCancel} isLoading={isCancelling} disabled={isDispatching || isCancelling}>
                   Cancel
                 </Button>
               </>

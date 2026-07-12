@@ -50,7 +50,7 @@ function AuthPage() {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { email: "manager@transitops.io", password: "demo1234", role: "Fleet Manager", remember: true },
+    defaultValues: { email: "", password: "", role: "Fleet Manager", remember: true },
   });
 
   const onSubmit = async (values: FormValues) => {
@@ -124,7 +124,7 @@ function AuthPage() {
               <Label htmlFor="email">Email</Label>
               <div className="relative mt-1.5">
                 <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input id="email" type="email" className="pl-9" {...form.register("email")} />
+                <Input id="email" type="email" className="pl-9" placeholder="manager@transitops.io" {...form.register("email")} />
               </div>
               {form.formState.errors.email && (
                 <p className="mt-1 text-xs text-destructive">{form.formState.errors.email.message}</p>
@@ -139,7 +139,7 @@ function AuthPage() {
               </div>
               <div className="relative mt-1.5">
                 <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input id="password" type="password" className="pl-9" {...form.register("password")} />
+                <Input id="password" type="password" className="pl-9" placeholder="••••••••" {...form.register("password")} />
               </div>
               {form.formState.errors.password && (
                 <p className="mt-1 text-xs text-destructive">{form.formState.errors.password.message}</p>
@@ -169,7 +169,7 @@ function AuthPage() {
               <Checkbox id="remember" defaultChecked {...(form.register("remember") as any)} />
               <Label htmlFor="remember" className="text-sm font-normal">Remember me</Label>
             </div>
-            <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+            <Button type="submit" className="w-full" isLoading={form.formState.isSubmitting}>
               Sign in
             </Button>
             <p className="text-center text-xs text-muted-foreground">

@@ -278,7 +278,7 @@ function ExpensesPage() {
             </div>
             <DialogFooter className="col-span-2">
               <Button type="button" variant="outline" onClick={() => setOpenFuel(false)}>Cancel</Button>
-              <Button type="submit">Add Log</Button>
+              <Button type="submit" isLoading={fuelForm.formState.isSubmitting}>Add Log</Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -329,7 +329,7 @@ function ExpensesPage() {
             </div>
             <DialogFooter className="col-span-2">
               <Button type="button" variant="outline" onClick={() => setOpenExp(false)}>Cancel</Button>
-              <Button type="submit">Add Entry</Button>
+              <Button type="submit" isLoading={expForm.formState.isSubmitting}>Add Entry</Button>
             </DialogFooter>
           </form>
         </DialogContent>

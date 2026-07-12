@@ -351,7 +351,7 @@ function DriversPage() {
             </Field>
             <DialogFooter className="col-span-2 pt-1">
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-              <Button type="submit">{editing ? "Save Changes" : "Add Driver"}</Button>
+              <Button type="submit" isLoading={form.formState.isSubmitting}>{editing ? "Save Changes" : "Add Driver"}</Button>
             </DialogFooter>
           </form>
         </DialogContent>
